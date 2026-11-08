@@ -1,0 +1,21 @@
+{
+  "name": "resort-server",
+  "version": "1.0.0",
+  "description": "Backend API for Hill Resort Direct Booking and AI Enquiry Routing",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/db/seedData.js",
+    "test": "node --test tests/**/*.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.6.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "uuid": "^13.0.0"
+  }
+}
