@@ -539,13 +539,13 @@ export default function AdminInboxPage() {
                 </span>
                 <span style={{
                   fontSize: '0.72rem',
-                  padding: '0.2rem 0.5rem',
+                  padding: '0.2rem 0.6rem',
                   borderRadius: '4px',
                   backgroundColor: 'var(--primary-subtle)',
                   color: 'var(--primary-deep)',
                   fontWeight: 600
                 }}>
-                  Live AI Engine Active &bull; Zero Auto-Send Guardrail
+                  {selectedEnquiry.extracted_entities?.engine || 'Live AI Engine Active'}
                 </span>
               </div>
 

@@ -248,6 +248,8 @@ Warm regards,
 Reservations Desk | Serai Ridge Estate & Resort`;
   }
 
+  entities.engine = 'Deterministic Grounded NLP Engine (Offline Fallback)';
+
   return {
     category,
     confidence,
@@ -314,6 +316,7 @@ Return a strict JSON object with these keys:
   if (!rawText) throw new Error('Empty response from Gemini API');
 
   const parsed = JSON.parse(rawText);
+  parsed.engine = 'Google Gemini 1.5 Flash (Generative LLM)';
   return {
     category: parsed.category || 'unsorted',
     confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.85,
