@@ -48,7 +48,7 @@ export default function RoleSwitcher() {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-        <span style={{ color: '#A0B2A6', fontSize: '0.75rem', marginRight: '0.3rem' }}>Switch Role:</span>
+        <span style={{ color: '#C5D5CB', fontSize: '0.75rem', marginRight: '0.3rem' }}>Switch Role:</span>
         <button
           onClick={() => demoLogin('guest')}
           style={{

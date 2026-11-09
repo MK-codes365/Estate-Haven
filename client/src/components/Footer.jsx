@@ -106,7 +106,7 @@ export default function Footer({ setActivePage }) {
           flexWrap: 'wrap',
           gap: '1rem',
           fontSize: '0.8rem',
-          color: '#829A8E'
+          color: '#B8C9C0'
         }}>
           <div>
             &copy; 2026 Company A / The Serai Ridge Estate & Resort. All rights reserved. Direct Allotment Protection System v2.4.

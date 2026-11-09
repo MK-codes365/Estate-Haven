@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { useBooking } from '../context/BookingContext';
 import {
   Calendar,
@@ -10,7 +10,9 @@ import {
   Sparkles,
   Waves,
   Sun,
-  Compass
+  Compass,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 
 export default function HomePage({ setActivePage }) {
@@ -24,6 +26,17 @@ export default function HomePage({ setActivePage }) {
     childrenCount,
     setChildrenCount
   } = useBooking();
+
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
+
+  const toggleSound = () => {
+    if (videoRef.current) {
+      const nextMuted = !videoRef.current.muted;
+      videoRef.current.muted = nextMuted;
+      setIsMuted(nextMuted);
+    }
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -48,10 +61,13 @@ export default function HomePage({ setActivePage }) {
       }}>
         {/* Full-bleed ambient resort video from public/Video 1.mp4 */}
         <video
+          ref={videoRef}
           autoPlay
           loop
-          muted
+          muted={isMuted}
           playsInline
+          preload="metadata"
+          poster="/poster.webp"
           style={{
             position: 'absolute',
             top: 0,
@@ -78,6 +94,47 @@ export default function HomePage({ setActivePage }) {
           pointerEvents: 'none'
         }} />
 
+        {/* Floating Sound Toggle Pill (Awwwards / CRUE-Creative Style) */}
+        <button
+          type="button"
+          onClick={toggleSound}
+          aria-label={isMuted ? 'Turn ambient sound on' : 'Mute ambient sound'}
+          style={{
+            position: 'absolute',
+            top: '2rem',
+            right: '2rem',
+            zIndex: 25,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            backgroundColor: 'rgba(10, 18, 14, 0.78)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255, 255, 255, 0.22)',
+            borderRadius: '9999px',
+            padding: '0.45rem 1rem',
+            color: '#FAF8F5',
+            fontSize: '0.74rem',
+            fontWeight: 700,
+            letterSpacing: '1.4px',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          {isMuted ? (
+            <>
+              <VolumeX size={15} color="#C59B27" />
+              <span>SOUND OFF</span>
+            </>
+          ) : (
+            <>
+              <Volume2 size={15} color="#C59B27" />
+              <span>SOUND ON</span>
+            </>
+          )}
+        </button>
+
         {/* Center Editorial Title Typography (Awwwards Big Display Style) */}
         <div style={{
           position: 'relative',
@@ -86,17 +143,36 @@ export default function HomePage({ setActivePage }) {
           maxWidth: '1280px',
           margin: 'auto 0 3rem 0'
         }}>
-          <span style={{
-            display: 'block',
-            fontSize: 'clamp(0.8rem, 1.2vw, 0.95rem)',
-            letterSpacing: '3px',
-            textTransform: 'uppercase',
-            color: '#C59B27',
-            fontWeight: 600,
-            marginBottom: '0.8rem'
+          {/* Pill Badge matching design */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            backgroundColor: 'rgba(12, 22, 17, 0.85)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.16)',
+            borderRadius: '9999px',
+            padding: '0.4rem 1.15rem',
+            marginBottom: '1.2rem',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.25)'
           }}>
-            Company A &bull; Chikkamagaluru, Karnataka
-          </span>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: '#C59B27',
+              display: 'inline-block'
+            }} />
+            <span style={{
+              fontSize: '0.76rem',
+              letterSpacing: '2px',
+              textTransform: 'uppercase',
+              color: '#D8E8DF',
+              fontWeight: 700
+            }}>
+              CHIKKAMAGALURU &bull; 76 KEYS COFFEE SANCTUARY
+            </span>
+          </div>
 
           <h1 style={{
             fontFamily: 'var(--font-serif)',
@@ -114,7 +190,7 @@ export default function HomePage({ setActivePage }) {
 
           <p style={{
             fontSize: 'clamp(1rem, 1.6vw, 1.35rem)',
-            color: '#D1DDD6',
+            color: '#E0EDE5',
             maxWidth: '680px',
             lineHeight: 1.6,
             fontWeight: 300,
@@ -128,9 +204,9 @@ export default function HomePage({ setActivePage }) {
         <div style={{
           position: 'relative',
           zIndex: 10,
-          backgroundColor: 'rgba(20, 36, 28, 0.88)',
+          backgroundColor: 'rgba(20, 36, 28, 0.92)',
           backdropFilter: 'blur(20px)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.12)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.15)',
           padding: '1.4rem 3rem'
         }}>
           <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
@@ -141,10 +217,11 @@ export default function HomePage({ setActivePage }) {
               alignItems: 'flex-end'
             }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#A0B4AA', marginBottom: '0.4rem' }}>
+                <label htmlFor="booking-check-in" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#D8E8DF', marginBottom: '0.4rem' }}>
                   <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} /> Check-In
                 </label>
                 <input
+                  id="booking-check-in"
                   type="date"
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
@@ -152,7 +229,7 @@ export default function HomePage({ setActivePage }) {
                     width: '100%',
                     padding: '0.65rem 0.8rem',
                     backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
                     borderRadius: '6px',
                     color: '#FFFFFF',
                     fontWeight: 600
@@ -162,10 +239,11 @@ export default function HomePage({ setActivePage }) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#A0B4AA', marginBottom: '0.4rem' }}>
+                <label htmlFor="booking-check-out" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#D8E8DF', marginBottom: '0.4rem' }}>
                   <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} /> Check-Out
                 </label>
                 <input
+                  id="booking-check-out"
                   type="date"
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
@@ -173,7 +251,7 @@ export default function HomePage({ setActivePage }) {
                     width: '100%',
                     padding: '0.65rem 0.8rem',
                     backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
                     borderRadius: '6px',
                     color: '#FFFFFF',
                     fontWeight: 600
@@ -183,18 +261,20 @@ export default function HomePage({ setActivePage }) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#A0B4AA', marginBottom: '0.4rem' }}>
+                <label htmlFor="booking-adults" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#D8E8DF', marginBottom: '0.4rem' }}>
                   <Users size={12} style={{ display: 'inline', marginRight: '4px' }} /> Guests & Children
                 </label>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <select
+                    id="booking-adults"
+                    aria-label="Number of Adults"
                     value={adults}
                     onChange={(e) => setAdults(Number(e.target.value))}
                     style={{
                       flex: 1,
                       padding: '0.65rem 0.6rem',
                       backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      border: '1px solid rgba(255, 255, 255, 0.25)',
                       borderRadius: '6px',
                       color: '#FFFFFF',
                       fontWeight: 600
@@ -206,13 +286,15 @@ export default function HomePage({ setActivePage }) {
                     <option value="4" style={{ color: '#000' }}>4 Adults</option>
                   </select>
                   <select
+                    id="booking-children"
+                    aria-label="Number of Children"
                     value={childrenCount}
                     onChange={(e) => setChildrenCount(Number(e.target.value))}
                     style={{
                       flex: 1,
                       padding: '0.65rem 0.6rem',
                       backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      border: '1px solid rgba(255, 255, 255, 0.25)',
                       borderRadius: '6px',
                       color: '#FFFFFF',
                       fontWeight: 600
@@ -229,6 +311,7 @@ export default function HomePage({ setActivePage }) {
                 <button
                   type="submit"
                   className="btn-gold"
+                  aria-label="Reserve Direct on official website"
                   style={{
                     width: '100%',
                     padding: '0.75rem 1.4rem',
@@ -319,7 +402,7 @@ export default function HomePage({ setActivePage }) {
 
             <p style={{
               fontSize: '1.05rem',
-              color: '#A0B4AA',
+              color: '#D8E8DF',
               lineHeight: 1.8,
               marginBottom: '1.8rem',
               fontWeight: 300
@@ -339,7 +422,7 @@ export default function HomePage({ setActivePage }) {
                 <span style={{ display: 'block', fontSize: '2.4rem', fontFamily: 'var(--font-serif)', color: '#C59B27', fontWeight: 600 }}>
                   76 Keys
                 </span>
-                <span style={{ fontSize: '0.82rem', color: '#A0B4AA', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <span style={{ fontSize: '0.82rem', color: '#D8E8DF', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   64 Rooms & 12 Villas
                 </span>
               </div>
@@ -348,7 +431,7 @@ export default function HomePage({ setActivePage }) {
                 <span style={{ display: 'block', fontSize: '2.4rem', fontFamily: 'var(--font-serif)', color: '#C59B27', fontWeight: 600 }}>
                   100%
                 </span>
-                <span style={{ fontSize: '0.82rem', color: '#A0B4AA', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <span style={{ fontSize: '0.82rem', color: '#D8E8DF', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   Direct Allotment Isolation
                 </span>
               </div>
@@ -380,8 +463,12 @@ export default function HomePage({ setActivePage }) {
               height: '480px'
             }}>
               <img
-                src="/Photo 1.jpg"
+                src="/Photo 1.webp"
                 alt="Serai Ridge Estate Grounds & Architecture"
+                loading="lazy"
+                decoding="async"
+                width="1600"
+                height="1067"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
@@ -399,8 +486,12 @@ export default function HomePage({ setActivePage }) {
               zIndex: 5
             }}>
               <img
-                src="/Photo 2.jpg"
+                src="/Photo 2.webp"
                 alt="Estate Sunset Atmosphere"
+                loading="lazy"
+                decoding="async"
+                width="800"
+                height="533"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
@@ -435,7 +526,7 @@ export default function HomePage({ setActivePage }) {
               </h2>
             </div>
 
-            <span style={{ fontSize: '0.85rem', color: '#A0B4AA' }}>
+            <span style={{ fontSize: '0.85rem', color: '#D8E8DF' }}>
               Original Estate Photography
             </span>
           </div>
@@ -455,8 +546,12 @@ export default function HomePage({ setActivePage }) {
             }}>
               <div className="editorial-img-wrap" style={{ height: '320px' }}>
                 <img
-                  src="/Photo 3.jpg"
+                  src="/Photo 3.webp"
                   alt="Plunge Pool Villa View"
+                  loading="lazy"
+                  decoding="async"
+                  width="1200"
+                  height="800"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
@@ -467,7 +562,7 @@ export default function HomePage({ setActivePage }) {
                 <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
                   Private Heated Plunge Pool Villas
                 </h3>
-                <p style={{ fontSize: '0.88rem', color: '#A0B4AA', lineHeight: 1.5, margin: 0 }}>
+                <p style={{ fontSize: '0.9rem', color: '#D8E8DF', lineHeight: 1.5, margin: 0 }}>
                   1,350 sq.ft secluded sanctuary with heated private pool and panoramic canopy views over the Western Ghats.
                 </p>
               </div>
@@ -482,8 +577,12 @@ export default function HomePage({ setActivePage }) {
             }}>
               <div className="editorial-img-wrap" style={{ height: '320px' }}>
                 <img
-                  src="/Photo 4.jpg"
+                  src="/Photo 4.webp"
                   alt="Estate Valley Suites"
+                  loading="lazy"
+                  decoding="async"
+                  width="1200"
+                  height="800"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
@@ -494,7 +593,7 @@ export default function HomePage({ setActivePage }) {
                 <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
                   Estate Valley Suites
                 </h3>
-                <p style={{ fontSize: '0.88rem', color: '#A0B4AA', lineHeight: 1.5, margin: 0 }}>
+                <p style={{ fontSize: '0.9rem', color: '#D8E8DF', lineHeight: 1.5, margin: 0 }}>
                   680 sq.ft glass-walled suites cantilevered over coffee trees with deep terrazzo tubs and morning mist balconies.
                 </p>
               </div>
@@ -509,8 +608,12 @@ export default function HomePage({ setActivePage }) {
             }}>
               <div className="editorial-img-wrap" style={{ height: '320px' }}>
                 <img
-                  src="/Photo 5.jpg"
+                  src="/Photo 5.webp"
                   alt="Planter's Cottage & Lawns"
+                  loading="lazy"
+                  decoding="async"
+                  width="1200"
+                  height="800"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
@@ -521,7 +624,7 @@ export default function HomePage({ setActivePage }) {
                 <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
                   Plantation Classic & Bhadra Lawns
                 </h3>
-                <p style={{ fontSize: '0.88rem', color: '#A0B4AA', lineHeight: 1.5, margin: 0 }}>
+                <p style={{ fontSize: '0.9rem', color: '#D8E8DF', lineHeight: 1.5, margin: 0 }}>
                   Teakwood colonial verandas and verdant open lawns framed by shade-grown coffee and silver oaks for unforgettable weddings.
                 </p>
               </div>
@@ -549,7 +652,7 @@ export default function HomePage({ setActivePage }) {
                 Save 20% OTA Commission
               </span>
               <span style={{ color: 'rgba(255,255,255,0.2)' }}>/</span>
-              <span style={{ fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#A0B4AA' }}>
+              <span style={{ fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#D8E8DF' }}>
                 Complimentary Guided Harvest Safari & Tasting
               </span>
               <span style={{ color: 'rgba(255,255,255,0.2)' }}>/</span>
@@ -589,7 +692,7 @@ export default function HomePage({ setActivePage }) {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundImage: 'linear-gradient(to top, rgba(10,18,14,0.92) 20%, rgba(10,18,14,0.3) 100%), url("/Photo 2.jpg")',
+              backgroundImage: 'linear-gradient(to top, rgba(10,18,14,0.92) 20%, rgba(10,18,14,0.3) 100%), url("/Photo 2.webp")',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               zIndex: 1
@@ -610,7 +713,7 @@ export default function HomePage({ setActivePage }) {
               <h3 style={{ fontSize: '2rem', color: '#FFFFFF', fontFamily: 'var(--font-serif)', marginBottom: '0.8rem' }}>
                 Destination Weddings in the Mist
               </h3>
-              <p style={{ color: '#D1DDD6', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+              <p style={{ color: '#E0EDE5', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
                 Exclusive 76-key estate buyouts with authentic Malnad royal banqueting, Sangeet under silver oak canopies, and concierge coordination.
               </p>
               <button
@@ -642,7 +745,7 @@ export default function HomePage({ setActivePage }) {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundImage: 'linear-gradient(to top, rgba(10,18,14,0.92) 20%, rgba(10,18,14,0.3) 100%), url("/Photo 1.jpg")',
+              backgroundImage: 'linear-gradient(to top, rgba(10,18,14,0.92) 20%, rgba(10,18,14,0.3) 100%), url("/Photo 1.webp")',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               zIndex: 1
@@ -654,7 +757,7 @@ export default function HomePage({ setActivePage }) {
                 fontSize: '0.72rem',
                 letterSpacing: '1.5px',
                 textTransform: 'uppercase',
-                color: '#A0B4AA',
+                color: '#C59B27',
                 fontWeight: 700,
                 marginBottom: '0.6rem'
               }}>
@@ -663,7 +766,7 @@ export default function HomePage({ setActivePage }) {
               <h3 style={{ fontSize: '2rem', color: '#FFFFFF', fontFamily: 'var(--font-serif)', marginBottom: '0.8rem' }}>
                 Leadership & Corporate Retreats
               </h3>
-              <p style={{ color: '#D1DDD6', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+              <p style={{ color: '#E0EDE5', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
                 High-speed fiber connectivity, dedicated conference amphitheater, coffee trail networking challenges, and twilight outdoor barbecue banquets.
               </p>
               <button
@@ -699,7 +802,7 @@ export default function HomePage({ setActivePage }) {
           <h2 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.4rem)', color: '#FFFFFF', fontFamily: 'var(--font-serif)', marginTop: '0.6rem', marginBottom: '1rem' }}>
             Book Directly With Company A
           </h2>
-          <p style={{ color: '#A0B4AA', maxWidth: '640px', margin: '0 auto 2.5rem auto', fontSize: '0.98rem', lineHeight: 1.7 }}>
+          <p style={{ color: '#D8E8DF', maxWidth: '640px', margin: '0 auto 2.5rem auto', fontSize: '0.98rem', lineHeight: 1.7 }}>
             By booking through our direct website, you enjoy our guaranteed lowest tariff, avoid online travel agency surcharges, and support sustainable shade-grown coffee farming in Chikkamagaluru.
           </p>
 
@@ -719,7 +822,7 @@ export default function HomePage({ setActivePage }) {
               <ArrowRight size={16} />
             </button>
 
-            <span style={{ fontSize: '0.82rem', color: '#A0B4AA', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{ fontSize: '0.82rem', color: '#D8E8DF', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <ShieldCheck size={16} color="#C59B27" /> Hard Allotment Isolation &bull; Instant Confirmation
             </span>
           </div>
