@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { Download, TrendingUp, BarChart, DollarSign, Clock, ShieldCheck, FileSpreadsheet, Sparkles } from 'lucide-react';
+import { Download, ShieldCheck, FileSpreadsheet } from 'lucide-react';
 
 export default function AdminReportsPage() {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [exportDate, setExportDate] = useState(new Date().toISOString().split('T')[0]);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     async function loadMetrics() {
@@ -21,9 +22,41 @@ export default function AdminReportsPage() {
     loadMetrics();
   }, []);
 
-  const handleDownloadPMS = () => {
-    const url = api.getPMSExportUrl(exportDate);
-    window.open(url, '_blank');
+  const handleDownloadPMS = async () => {
+    setDownloading(true);
+    try {
+      const token = localStorage.getItem('coffeeridge_token');
+      const res = await fetch(`/api/admin/pms-export?date=${exportDate}`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      });
+
+      if (!res.ok) {
+        let errMsg = 'Failed to download PMS CSV';
+        try {
+          const errData = await res.json();
+          errMsg = errData.error || errMsg;
+        } catch (e) {
+          errMsg = res.statusText || errMsg;
+        }
+        throw new Error(errMsg);
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pms_export_${exportDate || new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('PMS Export Error: ' + err.message);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -64,11 +97,12 @@ export default function AdminReportsPage() {
           </div>
           <button
             onClick={handleDownloadPMS}
+            disabled={downloading}
             className="btn-gold"
-            style={{ fontSize: '0.85rem', padding: '0.65rem 1.2rem', height: 'fit-content', alignSelf: 'flex-end' }}
+            style={{ fontSize: '0.85rem', padding: '0.65rem 1.2rem', height: 'fit-content', alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             <Download size={15} />
-            <span>Download Daily PMS CSV</span>
+            <span>{downloading ? 'Exporting CSV...' : 'Download Daily PMS CSV'}</span>
           </button>
         </div>
       </div>
@@ -86,7 +120,7 @@ export default function AdminReportsPage() {
             Total Annual Value Preserved
           </span>
           <div style={{ fontSize: '2.2rem', fontWeight: 700, color: 'var(--primary-deep)', margin: '0.4rem 0 0.2rem 0' }}>
-            {metrics?.roiCalculations?.totalAnnualSavingsFormatted || '₹1.05 Crore / Year'}
+            {loading ? '...' : metrics?.roiCalculations?.totalAnnualSavingsFormatted}
           </div>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
             Combined OTA commission savings and recovered event bookings.
@@ -99,7 +133,7 @@ export default function AdminReportsPage() {
             Agency Commission Saved (15% Shift)
           </span>
           <div style={{ fontSize: '2.2rem', fontWeight: 700, color: '#1E8449', margin: '0.4rem 0 0.2rem 0' }}>
-            {metrics?.roiCalculations?.commissionSavedFormatted || '₹33.3 Lakhs'}
+            {loading ? '...' : metrics?.roiCalculations?.commissionSavedFormatted}
           </div>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
             Shifting 15% of 11,695 OTA room nights direct avoids 20% OTA commission.
@@ -112,7 +146,7 @@ export default function AdminReportsPage() {
             Event Revenue Recovered (3 Events/Mo)
           </span>
           <div style={{ fontSize: '2.2rem', fontWeight: 700, color: 'var(--terracotta)', margin: '0.4rem 0 0.2rem 0' }}>
-            {metrics?.roiCalculations?.eventRevenuePreservedFormatted || '₹72.0 Lakhs'}
+            {loading ? '...' : metrics?.roiCalculations?.eventRevenuePreservedFormatted}
           </div>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
             Eliminates the 30% day-long response delay costing ₹2L contribution per event.

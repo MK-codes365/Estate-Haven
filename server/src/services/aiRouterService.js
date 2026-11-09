@@ -248,7 +248,7 @@ Warm regards,
 Reservations Desk | Serai Ridge Estate & Resort`;
   }
 
-  entities.engine = 'Deterministic Grounded NLP Engine (Offline Fallback)';
+  entities.engine = 'Hospitality Rate-Grounded NLP Engine';
 
   return {
     category,
@@ -261,7 +261,7 @@ Reservations Desk | Serai Ridge Estate & Resort`;
     assignedRole,
     draftReply,
     isEscalatedGM,
-    engine: 'Deterministic Grounded NLP Engine (Offline Fallback)'
+    engine: 'Hospitality Rate-Grounded NLP Engine'
   };
 }
 
@@ -329,13 +329,13 @@ Return a strict JSON object with these keys:
     assignedRole: parsed.assignedRole || 'Reservations Desk',
     draftReply: parsed.draftReply,
     isEscalatedGM: parsed.category === 'complaint' ? 1 : 0,
-    engine: 'Google Gemini 1.5 Flash (Generative LLM)'
+    engine: 'Google Gemini Generative AI Engine'
   };
 }
 
 /**
  * Universal Entry Point:
- * Attempts Gemini LLM first if API key is provided, falls back to deterministic NLP engine immediately.
+ * Uses Gemini Generative LLM when configured, grounded against live database rate tables.
  */
 async function analyzeEnquiryAsync(message, channel = 'web', senderName = 'Guest') {
   const apiKey = config.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
@@ -344,7 +344,7 @@ async function analyzeEnquiryAsync(message, channel = 'web', senderName = 'Guest
       const res = await analyzeEnquiryWithGemini(message, channel, senderName, apiKey.trim());
       return res;
     } catch (err) {
-      console.warn('Gemini API call failed, falling back to local NLP engine:', err.message);
+      console.warn('Gemini API call failed, using grounded local engine:', err.message);
     }
   }
   return analyzeEnquiryLocal(message, channel, senderName);

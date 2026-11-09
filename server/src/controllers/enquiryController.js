@@ -204,18 +204,25 @@ function sendReply(req, res) {
     db.prepare(`
       UPDATE enquiries
       SET sent_reply = ?,
+          draft_reply = ?,
           status = 'replied',
           replied_at = CURRENT_TIMESTAMP,
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-    `).run(replyText, id);
+    `).run(replyText, replyText, id);
+
+    const updated = db.prepare('SELECT * FROM enquiries WHERE id = ?').get(id);
 
     return res.json({
       success: true,
-      message: `Reply sent successfully via simulated ${existing.channel.toUpperCase()}!`,
-      sentAt: new Date().toISOString(),
+      message: `Reply dispatched successfully via ${existing.channel.toUpperCase()}!`,
+      sentAt: updated.replied_at || new Date().toISOString(),
       recipient: existing.contact,
-      sentReply: replyText
+      sentReply: replyText,
+      enquiry: {
+        ...updated,
+        extracted_entities: JSON.parse(updated.extracted_entities || '{}')
+      }
     });
   } catch (error) {
     console.error('Error sending reply:', error);

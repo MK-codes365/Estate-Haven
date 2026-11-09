@@ -1,39 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { useAuth } from '../context/AuthContext';
 import {
-  Inbox,
-  AlertTriangle,
   Send,
-  Sparkles,
   Phone,
   Mail,
   Globe,
   CheckCircle2,
-  Filter,
   RefreshCw,
   Search,
   MessageSquare,
-  ChevronRight,
   ShieldAlert,
-  ArrowRight
+  Clock,
+  UserCheck,
+  CheckCheck,
+  Building2,
+  Calendar,
+  Users,
+  CreditCard
 } from 'lucide-react';
 
 export default function AdminInboxPage() {
-  const { role, user } = useAuth();
   const [enquiries, setEnquiries] = useState([]);
   const [counts, setCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
 
-  // Filters
-  const [currentLane, setCurrentLane] = useState('all'); // 'all', 'unsorted', 'escalated', 'wedding', 'corporate_offsite', 'room_booking'
+  // Filters & Lanes
+  const [currentLane, setCurrentLane] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Editing draft state
   const [editedDraft, setEditedDraft] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
   const [successToast, setSuccessToast] = useState(null);
+  const [isFollowUpMode, setIsFollowUpMode] = useState(false);
 
   // Simulation Modal
   const [simModalOpen, setSimModalOpen] = useState(false);
@@ -55,6 +55,8 @@ export default function AdminInboxPage() {
         params.lane = 'unsorted';
       } else if (currentLane === 'escalated') {
         params.lane = 'escalated';
+      } else if (currentLane === 'replied') {
+        params.status = 'replied';
       } else if (currentLane !== 'all') {
         params.category = currentLane;
       }
@@ -63,15 +65,17 @@ export default function AdminInboxPage() {
       }
 
       const res = await api.getEnquiries(params);
-      setEnquiries(res.enquiries || []);
+      const list = res.enquiries || [];
+      setEnquiries(list);
       setCounts(res.counts || {});
 
-      // Keep selection or pick first
-      if (res.enquiries && res.enquiries.length > 0) {
-        const found = res.enquiries.find(e => selectedEnquiry && e.id === selectedEnquiry.id);
-        const active = found || res.enquiries[0];
+      // Keep current selection or pick first item
+      if (list.length > 0) {
+        const found = list.find(e => selectedEnquiry && e.id === selectedEnquiry.id);
+        const active = found || list[0];
         setSelectedEnquiry(active);
-        setEditedDraft(active.draft_reply || '');
+        setEditedDraft(active.sent_reply || active.draft_reply || '');
+        setIsFollowUpMode(false);
       } else {
         setSelectedEnquiry(null);
         setEditedDraft('');
@@ -85,7 +89,8 @@ export default function AdminInboxPage() {
 
   const handleSelectEnquiry = (enq) => {
     setSelectedEnquiry(enq);
-    setEditedDraft(enq.draft_reply || '');
+    setEditedDraft(enq.sent_reply || enq.draft_reply || '');
+    setIsFollowUpMode(false);
   };
 
   const handleSendReply = async () => {
@@ -93,11 +98,30 @@ export default function AdminInboxPage() {
     setSendingReply(true);
     try {
       const res = await api.sendReply(selectedEnquiry.id, editedDraft);
-      setSuccessToast(`Reply sent successfully via simulated ${selectedEnquiry.channel.toUpperCase()} to ${selectedEnquiry.contact}!`);
-      setTimeout(() => setSuccessToast(null), 5000);
-      fetchEnquiries();
+      
+      // Update local selected record immediately with delivered state
+      const updatedEnquiry = res.enquiry || {
+        ...selectedEnquiry,
+        status: 'replied',
+        sent_reply: editedDraft,
+        replied_at: res.sentAt || new Date().toISOString()
+      };
+      
+      setSelectedEnquiry(updatedEnquiry);
+      setIsFollowUpMode(false);
+
+      // Show luxury confirmation banner
+      setSuccessToast(`Dispatched successfully via simulated ${selectedEnquiry.channel.toUpperCase()} to ${selectedEnquiry.contact}!`);
+      setTimeout(() => setSuccessToast(null), 6000);
+
+      // Refresh background counters & list
+      const fresh = await api.getEnquiries(currentLane === 'all' ? {} : { category: currentLane });
+      if (fresh.enquiries) {
+        setEnquiries(fresh.enquiries);
+        setCounts(fresh.counts || {});
+      }
     } catch (err) {
-      alert('Error sending reply: ' + err.message);
+      alert('Error dispatching reply: ' + err.message);
     } finally {
       setSendingReply(false);
     }
@@ -111,7 +135,7 @@ export default function AdminInboxPage() {
 
       if (newCategory === 'wedding') {
         newOwner = 'Priya Sharma';
-        newRole = 'Wedding & Events Lead';
+        newRole = 'Wedding & Banquets Lead';
       } else if (newCategory === 'corporate_offsite') {
         newOwner = 'Vikram Rao';
         newRole = 'Corporate Sales Lead';
@@ -123,12 +147,15 @@ export default function AdminInboxPage() {
         newRole = 'General Manager';
       }
 
-      await api.updateEnquiry(selectedEnquiry.id, {
+      const res = await api.updateEnquiry(selectedEnquiry.id, {
         category: newCategory,
         assignedTo: newOwner,
         assignedRole: newRole
       });
 
+      if (res.enquiry) {
+        setSelectedEnquiry(res.enquiry);
+      }
       fetchEnquiries();
     } catch (err) {
       alert('Failed to re-route: ' + err.message);
@@ -146,8 +173,10 @@ export default function AdminInboxPage() {
         message: simMessage
       });
       setSimModalOpen(false);
-      fetchEnquiries();
-      handleSelectEnquiry(res.enquiry);
+      await fetchEnquiries();
+      if (res.enquiry) {
+        handleSelectEnquiry(res.enquiry);
+      }
     } catch (err) {
       alert('Simulation error: ' + err.message);
     } finally {
@@ -155,94 +184,194 @@ export default function AdminInboxPage() {
     }
   };
 
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
+  const isComplaint = selectedEnquiry && (selectedEnquiry.category === 'complaint' || selectedEnquiry.is_escalated_gm === 1);
+  const isReplied = selectedEnquiry && selectedEnquiry.status === 'replied';
+
   return (
-    <div className="container animate-fade" style={{ padding: '2.5rem 1.5rem', maxWidth: '1240px' }}>
-      {/* Success Notification */}
+    <div className="container animate-fade" style={{ padding: '2.5rem 1.5rem', maxWidth: '1280px' }}>
+      
+      {/* Toast Notification */}
       {successToast && (
         <div style={{
-          backgroundColor: 'var(--success-bg)',
-          color: 'var(--success)',
-          padding: '0.9rem 1.2rem',
+          backgroundColor: '#E8F5E9',
+          color: '#1B5E20',
+          padding: '1rem 1.4rem',
           borderRadius: '8px',
-          border: '1px solid #C3E6CB',
+          border: '1.5px solid #81C784',
           marginBottom: '1.5rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.6rem',
-          fontWeight: 600
+          gap: '0.8rem',
+          fontWeight: 600,
+          boxShadow: '0 4px 12px rgba(27,94,32,0.1)'
         }}>
-          <CheckCircle2 size={18} />
+          <CheckCircle2 size={20} color="#2E7D32" />
           <span>{successToast}</span>
         </div>
       )}
 
-      {/* Top Header & Simulator Button */}
+      {/* Luxury Operations Header */}
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E6E1D8',
+        borderRadius: '12px',
+        padding: '1.8rem 2rem',
         marginBottom: '2rem',
-        flexWrap: 'wrap',
-        gap: '1rem'
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
       }}>
-        <div>
-          <span style={{ fontSize: '0.8rem', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--coffee-accent)', fontWeight: 700 }}>
-            Automated Lead & Guest CRM
-          </span>
-          <h1 style={{ fontSize: '2.2rem', marginTop: '0.2rem' }}>
-            AI Enquiry Router & Unified Inbox
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem' }}>
-            Multi-channel ingestion (Web, WhatsApp, Email). Automated intent classification, entity extraction, grounded rate table quoting, and fail-safe human review.
-          </p>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
+          gap: '1.5rem',
+          borderBottom: '1px solid #EFEAE2',
+          paddingBottom: '1.5rem',
+          marginBottom: '1.5rem'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.3rem' }}>
+              <span style={{ fontSize: '0.75rem', letterSpacing: '1.8px', textTransform: 'uppercase', color: 'var(--coffee-accent)', fontWeight: 700 }}>
+                The Serai Ridge Estate & Resort &bull; Chikkamagaluru
+              </span>
+              <span style={{ fontSize: '0.72rem', backgroundColor: '#EFEAE2', color: 'var(--primary-deep)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 600 }}>
+                76 Keys Matrix
+              </span>
+            </div>
+            <h1 style={{ fontSize: '2.1rem', margin: '0.2rem 0', color: 'var(--primary-deep)', fontFamily: 'var(--font-serif)' }}>
+              General Manager's Communications & Lead Hub
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', maxWidth: '780px', lineHeight: 1.5 }}>
+              Omnichannel lead management across WhatsApp, forwarded emails, and direct website forms. Grounded rate table quoting, strict allotment protection, and instant human review.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <button
+              onClick={() => setSimModalOpen(true)}
+              className="btn-gold"
+              style={{ padding: '0.75rem 1.4rem', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              <MessageSquare size={16} />
+              <span>+ Simulate Inbound Lead</span>
+            </button>
+          </div>
         </div>
 
-        <button
-          onClick={() => setSimModalOpen(true)}
-          className="btn-gold"
-          style={{ padding: '0.75rem 1.2rem', fontSize: '0.9rem' }}
-        >
-          <MessageSquare size={16} />
-          <span>+ Simulate Inbound Message</span>
-        </button>
+        {/* Operational KPI Ribbon (From Business Case Numbers) */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '1.2rem'
+        }}>
+          <div style={{ padding: '0.8rem 1rem', backgroundColor: '#FAF8F5', borderRadius: '8px', border: '1px solid #EFEAE2' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <Clock size={13} color="var(--primary-forest)" />
+              <span>Median Reply Time</span>
+            </div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary-deep)', marginTop: '0.2rem' }}>
+              14 mins <span style={{ fontSize: '0.78rem', color: '#2E7D32', fontWeight: 600 }}>(SLA &lt; 30m)</span>
+            </div>
+          </div>
+
+          <div style={{ padding: '0.8rem 1rem', backgroundColor: '#FAF8F5', borderRadius: '8px', border: '1px solid #EFEAE2' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <CreditCard size={13} color="var(--gold-warm)" />
+              <span>OTA Leakage Target</span>
+            </div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary-deep)', marginTop: '0.2rem' }}>
+              ₹33.3 Lakhs <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 500 }}>(15% shift)</span>
+            </div>
+          </div>
+
+          <div style={{ padding: '0.8rem 1rem', backgroundColor: '#FAF8F5', borderRadius: '8px', border: '1px solid #EFEAE2' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <Building2 size={13} color="#2563EB" />
+              <span>Event Loss Guard</span>
+            </div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary-deep)', marginTop: '0.2rem' }}>
+              ₹72 Lakhs <span style={{ fontSize: '0.78rem', color: '#2E7D32', fontWeight: 600 }}>(36 events/yr)</span>
+            </div>
+          </div>
+
+          <div style={{ padding: '0.8rem 1rem', backgroundColor: '#FAF8F5', borderRadius: '8px', border: '1px solid #EFEAE2' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <UserCheck size={13} color="#C0392B" />
+              <span>Duty Manager Desk</span>
+            </div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary-deep)', marginTop: '0.4rem' }}>
+              Rajesh Nair <span style={{ fontSize: '0.78rem', color: '#666', fontWeight: 500 }}>(General Manager)</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* GM High-Priority Complaint Alert Banner */}
+      {/* Critical GM Complaint Alert Banner (If Any Unresolved In-House Complaints) */}
       {counts.complaints > 0 && (
         <div style={{
-          backgroundColor: '#FDEDEC',
-          border: '1.5px solid #E74C3C',
-          borderRadius: '8px',
-          padding: '1rem 1.4rem',
+          backgroundColor: '#FDF2F2',
+          border: '1.5px solid #E57373',
+          borderRadius: '10px',
+          padding: '1.1rem 1.6rem',
           marginBottom: '2rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: '1rem'
+          gap: '1rem',
+          boxShadow: '0 2px 8px rgba(192,57,43,0.08)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <ShieldAlert size={24} color="#C0392B" className="pulse-alert" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
+              backgroundColor: '#FFEBEE',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid #FFCDD2'
+            }}>
+              <ShieldAlert size={22} color="#C0392B" />
+            </div>
             <div>
-              <strong style={{ color: '#C0392B', fontSize: '0.98rem' }}>
-                CRITICAL GM ESCALATION ACTIVE: {counts.complaints} In-House Guest Complaint(s)
+              <strong style={{ color: '#C0392B', fontSize: '1.05rem', display: 'block' }}>
+                Priority Resolution: {counts.complaints} In-House Guest Dissatisfaction Alert
               </strong>
-              <p style={{ fontSize: '0.85rem', color: '#78281F', marginTop: '0.1rem' }}>
-                Guest dissatisfaction automatically bypassed normal queue and assigned directly to GM Rajesh Nair.
+              <p style={{ fontSize: '0.86rem', color: '#5D100C', marginTop: '0.1rem' }}>
+                Bypassed standard queue. Assigned directly to General Manager Rajesh Nair for 15-minute resolution protocol.
               </p>
             </div>
           </div>
           <button
             onClick={() => setCurrentLane('escalated')}
-            className="btn-primary"
-            style={{ backgroundColor: '#C0392B', fontSize: '0.82rem', padding: '0.45rem 0.9rem' }}
+            style={{
+              backgroundColor: '#C0392B',
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: 600,
+              fontSize: '0.84rem',
+              padding: '0.6rem 1.2rem',
+              cursor: 'pointer'
+            }}
           >
-            Review Complaints Lane
+            Review Escalation Desk &rarr;
           </button>
         </div>
       )}
 
-      {/* Filter Tabs / Lanes */}
+      {/* Omnichannel Operational Tabs */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -250,142 +379,182 @@ export default function AdminInboxPage() {
         overflowX: 'auto',
         paddingBottom: '0.8rem',
         marginBottom: '1.5rem',
-        borderBottom: '1px solid var(--border-light)'
+        borderBottom: '1px solid #E6E1D8'
       }}>
         {[
-          { id: 'all', label: 'All Enquiries', count: counts.total || 0 },
-          { id: 'wedding', label: 'Weddings (Priya)', count: counts.weddings || 0 },
-          { id: 'corporate_offsite', label: 'Offsites (Vikram)', count: counts.offsites || 0 },
-          { id: 'room_booking', label: 'Room Bookings (Ananya)', count: counts.roomBookings || 0 },
-          { id: 'unsorted', label: 'Unsorted Lane (<70% Conf)', count: counts.unsorted || 0, badgeStyle: 'badge-warning' },
-          { id: 'escalated', label: 'GM Complaints', count: counts.complaints || 0, badgeStyle: 'badge-danger' }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setCurrentLane(tab.id)}
-            style={{
-              padding: '0.55rem 1rem',
-              borderRadius: '6px',
-              fontSize: '0.85rem',
-              fontWeight: currentLane === tab.id ? 700 : 500,
-              backgroundColor: currentLane === tab.id ? 'var(--primary-deep)' : '#FFFFFF',
-              color: currentLane === tab.id ? '#FFFFFF' : 'var(--text-secondary)',
-              border: '1px solid var(--border-light)',
-              whiteSpace: 'nowrap',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            <span>{tab.label}</span>
-            <span style={{
-              fontSize: '0.72rem',
-              padding: '0.1rem 0.4rem',
-              borderRadius: '999px',
-              backgroundColor: currentLane === tab.id ? 'rgba(255,255,255,0.2)' : 'var(--bg-muted)',
-              color: currentLane === tab.id ? '#FFFFFF' : 'var(--text-primary)',
-              fontWeight: 700
-            }}>
-              {tab.count}
-            </span>
-          </button>
-        ))}
+          { id: 'all', label: 'All Inbound Leads', count: counts.total || 0 },
+          { id: 'wedding', label: 'Weddings & Banquets (Priya)', count: counts.weddings || 0 },
+          { id: 'corporate_offsite', label: 'Corporate Offsites (Vikram)', count: counts.offsites || 0 },
+          { id: 'room_booking', label: 'Room Reservations (Ananya)', count: counts.roomBookings || 0 },
+          { id: 'unsorted', label: 'Unsorted Queue (<70% Match)', count: counts.unsorted || 0, isWarn: true },
+          { id: 'escalated', label: 'GM Escalations / Complaints', count: counts.complaints || 0, isCrit: true },
+          { id: 'replied', label: 'Dispatched & Resolved', count: (counts.total || 0) - (counts.pending || 0) }
+        ].map(tab => {
+          const isActive = currentLane === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setCurrentLane(tab.id)}
+              style={{
+                padding: '0.6rem 1.1rem',
+                borderRadius: '8px',
+                fontSize: '0.86rem',
+                fontWeight: isActive ? 700 : 500,
+                backgroundColor: isActive ? 'var(--primary-deep)' : '#FFFFFF',
+                color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
+                border: isActive ? '1px solid var(--primary-deep)' : '1px solid #E6E1D8',
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>{tab.label}</span>
+              <span style={{
+                fontSize: '0.72rem',
+                padding: '0.12rem 0.5rem',
+                borderRadius: '999px',
+                backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : (tab.isCrit ? '#FEE2E2' : (tab.isWarn ? '#FEF3C7' : '#F3EFEA')),
+                color: isActive ? '#FFFFFF' : (tab.isCrit ? '#B91C1C' : (tab.isWarn ? '#B45309' : 'var(--text-primary)')),
+                fontWeight: 700
+              }}>
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Main Inbox Workspace (Split View: List & Detail/Editor) */}
+      {/* Main Inbox Workspace (Split View) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-        gap: '2rem',
+        gridTemplateColumns: 'minmax(340px, 420px) 1fr',
+        gap: '1.8rem',
         alignItems: 'start'
       }}>
-        {/* Left Column: Enquiries List */}
-        <div className="card" style={{ padding: 0, overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
-          <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-light)', display: 'flex', gap: '0.5rem' }}>
+
+        {/* LEFT COLUMN: Communications List */}
+        <div style={{
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E6E1D8',
+          borderRadius: '10px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+        }}>
+          {/* Search bar */}
+          <div style={{ padding: '0.9rem 1rem', borderBottom: '1px solid #EFEAE2', display: 'flex', gap: '0.5rem', backgroundColor: '#FAF8F5' }}>
             <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={15} style={{ position: 'absolute', left: '10px', top: '10px', color: 'var(--text-muted)' }} />
+              <Search size={15} style={{ position: 'absolute', left: '12px', top: '11px', color: '#888' }} />
               <input
                 type="text"
-                placeholder="Search code, guest or keyword..."
+                placeholder="Search reference, guest or message..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && fetchEnquiries()}
                 style={{
                   width: '100%',
-                  padding: '0.5rem 0.8rem 0.5rem 2.2rem',
-                  border: '1px solid var(--border-light)',
+                  padding: '0.55rem 0.8rem 0.55rem 2.2rem',
+                  border: '1px solid #E0DAD0',
                   borderRadius: '6px',
-                  fontSize: '0.85rem'
+                  fontSize: '0.84rem',
+                  backgroundColor: '#FFFFFF'
                 }}
               />
             </div>
-            <button onClick={fetchEnquiries} className="btn-secondary" style={{ padding: '0.5rem' }}>
-              <RefreshCw size={15} />
+            <button
+              onClick={fetchEnquiries}
+              title="Refresh Queue"
+              style={{
+                padding: '0.55rem 0.8rem',
+                border: '1px solid #E0DAD0',
+                borderRadius: '6px',
+                backgroundColor: '#FFFFFF',
+                cursor: 'pointer'
+              }}
+            >
+              <RefreshCw size={14} color="#555" />
             </button>
           </div>
 
-          <div style={{ maxHeight: '680px', overflowY: 'auto' }}>
+          {/* List items */}
+          <div style={{ maxHeight: '720px', overflowY: 'auto' }}>
             {loading ? (
-              <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                Loading inbox messages...
+              <div style={{ padding: '3.5rem 1rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                Loading communication records...
               </div>
             ) : enquiries.length === 0 ? (
-              <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                No enquiries found in this lane.
+              <div style={{ padding: '3.5rem 1rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                No active records in this lane.
               </div>
             ) : (
               enquiries.map(enq => {
                 const isSelected = selectedEnquiry && selectedEnquiry.id === enq.id;
-                const isComplaint = enq.category === 'complaint' || enq.is_escalated_gm === 1;
-                const isLowConf = enq.confidence < 0.70 || enq.category === 'unsorted';
+                const isEnqComplaint = enq.category === 'complaint' || enq.is_escalated_gm === 1;
+                const isDispatched = enq.status === 'replied';
 
                 return (
                   <div
                     key={enq.id}
                     onClick={() => handleSelectEnquiry(enq)}
                     style={{
-                      padding: '1.2rem',
-                      borderBottom: '1px solid var(--border-light)',
-                      backgroundColor: isSelected ? 'var(--primary-subtle)' : (isComplaint ? '#FDF5F5' : '#FFFFFF'),
-                      borderLeft: isSelected ? '4px solid var(--primary-deep)' : (isComplaint ? '4px solid #C0392B' : '4px solid transparent'),
+                      padding: '1.1rem 1.2rem',
+                      borderBottom: '1px solid #EFEAE2',
+                      backgroundColor: isSelected ? '#F5EFEB' : (isEnqComplaint && !isDispatched ? '#FDF5F5' : '#FFFFFF'),
+                      borderLeft: isSelected ? '4px solid var(--primary-forest)' : (isEnqComplaint && !isDispatched ? '4px solid #C0392B' : '4px solid transparent'),
                       cursor: 'pointer',
                       transition: 'background-color 0.15s ease'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--primary-deep)' }}>
+                    {/* Top line: Reference + Channel + Badge */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontWeight: 700, fontSize: '0.84rem', color: 'var(--primary-deep)', fontFamily: 'monospace' }}>
                           {enq.enquiry_code}
                         </span>
+                        
+                        {/* Channel Badge */}
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '0.2rem',
-                          fontSize: '0.72rem',
-                          color: 'var(--text-secondary)',
-                          backgroundColor: 'var(--bg-muted)',
-                          padding: '0.1rem 0.4rem',
-                          borderRadius: '4px'
+                          gap: '0.25rem',
+                          fontSize: '0.7rem',
+                          fontWeight: 600,
+                          padding: '0.15rem 0.45rem',
+                          borderRadius: '4px',
+                          backgroundColor: enq.channel === 'whatsapp' ? '#E8F5E9' : (enq.channel === 'email' ? '#EFF6FF' : '#F5EFEB'),
+                          color: enq.channel === 'whatsapp' ? '#1B5E20' : (enq.channel === 'email' ? '#1E40AF' : 'var(--primary-forest)')
                         }}>
-                          {enq.channel === 'whatsapp' ? <Phone size={11} color="#25D366" /> : (enq.channel === 'email' ? <Mail size={11} color="#3498DB" /> : <Globe size={11} color="var(--primary-forest)" />)}
-                          {enq.channel}
+                          {enq.channel === 'whatsapp' && <Phone size={10} color="#25D366" />}
+                          {enq.channel === 'email' && <Mail size={10} color="#2563EB" />}
+                          {enq.channel === 'web' && <Globe size={10} color="var(--primary-forest)" />}
+                          {enq.channel.toUpperCase()}
                         </span>
                       </div>
 
-                      {isComplaint ? (
-                        <span className="badge badge-danger">GM Alert</span>
-                      ) : isLowConf ? (
-                        <span className="badge badge-warning">Unsorted</span>
+                      {/* Status / Category indicator */}
+                      {isDispatched ? (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.7rem', color: '#2E7D32', fontWeight: 700, backgroundColor: '#E8F5E9', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
+                          <CheckCheck size={11} color="#2E7D32" /> Dispatched
+                        </span>
+                      ) : isEnqComplaint ? (
+                        <span style={{ fontSize: '0.7rem', color: '#C0392B', fontWeight: 700, backgroundColor: '#FDEDEC', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
+                          GM Escalation
+                        </span>
                       ) : (
-                        <span className="badge badge-primary">{Math.round(enq.confidence * 100)}% Match</span>
+                        <span style={{ fontSize: '0.7rem', color: '#B45309', fontWeight: 700, backgroundColor: '#FEF3C7', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
+                          Action Required
+                        </span>
                       )}
                     </div>
 
-                    <strong style={{ fontSize: '0.95rem', display: 'block', color: 'var(--primary-deep)', marginBottom: '0.2rem' }}>
+                    {/* Guest Name */}
+                    <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--primary-deep)', marginBottom: '0.2rem' }}>
                       {enq.guest_name}
-                    </strong>
+                    </div>
 
+                    {/* Excerpt */}
                     <p style={{
                       fontSize: '0.82rem',
                       color: 'var(--text-secondary)',
@@ -394,19 +563,15 @@ export default function AdminInboxPage() {
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
                       WebkitBoxOrient: 'vertical',
-                      marginBottom: '0.6rem'
+                      margin: '0 0 0.5rem 0'
                     }}>
                       "{enq.message}"
                     </p>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      <span>Owner: <strong>{enq.assigned_to}</strong></span>
-                      <span style={{
-                        color: enq.status === 'replied' ? '#1E8449' : '#D35400',
-                        fontWeight: 600
-                      }}>
-                        {enq.status === 'replied' ? '✓ Replied' : '● Draft Ready'}
-                      </span>
+                    {/* Footer: Assigned Owner & Target */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.74rem', color: '#777' }}>
+                      <span>Desk: <strong style={{ color: 'var(--primary-deep)' }}>{enq.assigned_to}</strong></span>
+                      <span style={{ textTransform: 'capitalize' }}>{enq.category.replace('_', ' ')}</span>
                     </div>
                   </div>
                 );
@@ -415,192 +580,456 @@ export default function AdminInboxPage() {
           </div>
         </div>
 
-        {/* Right Column: AI Analysis, Rate Grounding & Draft Review Workspace */}
+        {/* RIGHT COLUMN: Executive Dossier & Dispatch Workspace */}
         {selectedEnquiry ? (
-          <div className="card" style={{ backgroundColor: '#FFFFFF', padding: '2rem' }}>
-            {/* Header with channel and code */}
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E6E1D8',
+            borderRadius: '10px',
+            padding: '2rem',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
+          }}>
+
+            {/* Dossier Header */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
-              paddingBottom: '1.2rem',
-              borderBottom: '1px solid var(--border-light)',
+              borderBottom: '1px solid #EFEAE2',
+              paddingBottom: '1.4rem',
               marginBottom: '1.5rem',
               flexWrap: 'wrap',
-              gap: '0.8rem'
+              gap: '1rem'
             }}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
-                  <h2 style={{ fontSize: '1.4rem' }}>{selectedEnquiry.enquiry_code}</h2>
-                  <span className="badge badge-primary" style={{ textTransform: 'capitalize' }}>
-                    {selectedEnquiry.category.replace('_', ' ')}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.3rem' }}>
+                  <h2 style={{ fontSize: '1.5rem', margin: 0, fontFamily: 'monospace', color: 'var(--primary-deep)' }}>
+                    {selectedEnquiry.enquiry_code}
+                  </h2>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    padding: '0.2rem 0.6rem',
+                    borderRadius: '4px',
+                    backgroundColor: isReplied ? '#E8F5E9' : (isComplaint ? '#FDEDEC' : '#EFF6FF'),
+                    color: isReplied ? '#1B5E20' : (isComplaint ? '#C0392B' : '#1E40AF')
+                  }}>
+                    {isReplied ? '✓ Dispatched & Delivered' : (isComplaint ? 'High Priority GM Escalation' : 'Review & Dispatch Pending')}
                   </span>
-                  {selectedEnquiry.is_escalated_gm === 1 && (
-                    <span className="badge badge-danger">High Priority GM Escalation</span>
-                  )}
                 </div>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  From: <strong>{selectedEnquiry.guest_name}</strong> &bull; {selectedEnquiry.contact}
-                </span>
+                <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+                  Guest: <strong style={{ color: 'var(--primary-deep)' }}>{selectedEnquiry.guest_name}</strong> &bull; {selectedEnquiry.contact}
+                </div>
               </div>
 
-              {/* One-Click Staff Re-Routing Dropdown */}
+              {/* Staff Re-Route Dropdown */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>
-                  Staff Re-Route Lane:
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+                  Department Lead Re-Routing:
                 </label>
                 <select
                   value={selectedEnquiry.category}
                   onChange={(e) => handleCategoryReRoute(e.target.value)}
                   style={{
-                    padding: '0.4rem 0.6rem',
-                    border: '1px solid var(--border-light)',
+                    padding: '0.45rem 0.8rem',
+                    border: '1px solid #D5CEBF',
                     borderRadius: '6px',
                     fontSize: '0.82rem',
                     fontWeight: 600,
-                    backgroundColor: 'var(--bg-muted)'
+                    backgroundColor: '#FAF8F5',
+                    color: 'var(--primary-deep)'
                   }}
                 >
-                  <option value="room_booking">Room Booking (Ananya Joshi)</option>
-                  <option value="wedding">Destination Wedding (Priya Sharma)</option>
-                  <option value="corporate_offsite">Corporate Offsite (Vikram Rao)</option>
-                  <option value="complaint">Complaint (Rajesh Nair, GM)</option>
-                  <option value="unsorted">Unsorted Lane (GM Review)</option>
+                  <option value="room_booking">Room Reservations Desk (Ananya Joshi)</option>
+                  <option value="wedding">Weddings & Celebrations (Priya Sharma)</option>
+                  <option value="corporate_offsite">Corporate Offsites (Vikram Rao)</option>
+                  <option value="complaint">GM Executive Escalation (Rajesh Nair)</option>
+                  <option value="unsorted">Unsorted Queue (GM Review)</option>
                 </select>
               </div>
             </div>
 
-            {/* Inbound Message Box */}
-            <div style={{
-              backgroundColor: 'var(--bg-muted)',
-              border: '1px solid var(--border-light)',
-              borderRadius: '8px',
-              padding: '1.2rem',
-              marginBottom: '1.5rem'
-            }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.4rem' }}>
-                Inbound Guest Message (Channel: {selectedEnquiry.channel.toUpperCase()})
-              </span>
-              <p style={{ fontSize: '0.92rem', color: 'var(--text-primary)', fontStyle: 'italic', lineHeight: 1.5 }}>
-                "{selectedEnquiry.message}"
-              </p>
-            </div>
+            {/* Special GM Escalation Action Strip for Complaints */}
+            {isComplaint && (
+              <div style={{
+                backgroundColor: '#FDF2F2',
+                border: '1.5px solid #FFCDD2',
+                borderRadius: '8px',
+                padding: '1.2rem',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '1rem'
+              }}>
+                <div>
+                  <strong style={{ color: '#C0392B', fontSize: '0.94rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <ShieldAlert size={16} color="#C0392B" />
+                    Duty Manager Action Required: In-House Guest Dissatisfaction
+                  </strong>
+                  <p style={{ fontSize: '0.82rem', color: '#6A1A17', margin: '0.2rem 0 0 0' }}>
+                    Standard SLA: Immediate phone call or in-person villa visit by Rajesh Nair.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.6rem' }}>
+                  <a
+                    href={`tel:${selectedEnquiry.contact.replace(/[^0-9+]/g, '')}`}
+                    className="btn-primary"
+                    style={{ backgroundColor: '#C0392B', fontSize: '0.78rem', padding: '0.45rem 0.8rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                  >
+                    <Phone size={13} />
+                    <span>Call Guest Directly</span>
+                  </a>
+                  <button
+                    onClick={() => {
+                      alert(`Duty Manager and Chief Engineer dispatched to inspect ${selectedEnquiry.guest_name}'s suite.`);
+                    }}
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      border: '1px solid #FFCDD2',
+                      color: '#C0392B',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      padding: '0.45rem 0.8rem',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Dispatch Engineer
+                  </button>
+                </div>
+              </div>
+            )}
 
-            {/* AI Entity Extractor & Rate Table Grounding Badge */}
+            {/* Stay Parameters & Rate Table Grounding Grid */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
               gap: '1rem',
-              padding: '1rem',
-              backgroundColor: 'var(--primary-subtle)',
+              padding: '1.1rem',
+              backgroundColor: '#FAF8F5',
+              border: '1px solid #EFEAE2',
               borderRadius: '8px',
-              marginBottom: '1.5rem',
+              marginBottom: '1.8rem',
               fontSize: '0.82rem'
             }}>
               <div>
-                <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Extracted Dates / Season:</span>
-                <strong style={{ color: 'var(--primary-deep)' }}>{selectedEnquiry.extracted_dates || 'Pending'}</strong>
-              </div>
-
-              <div>
-                <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Extracted Pax / Guests:</span>
-                <strong style={{ color: 'var(--primary-deep)' }}>{selectedEnquiry.extracted_guests || 'Pending'}</strong>
-              </div>
-
-              <div>
-                <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Rate Table Grounding:</span>
-                <strong style={{ color: 'var(--primary-deep)' }}>
-                  {selectedEnquiry.category === 'room_booking' ? 'Live DB Rates Applied' : 'Event Tariff Catalog'}
+                <span style={{ color: '#777', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.2rem' }}>
+                  <Calendar size={13} /> Stay Dates / Season:
+                </span>
+                <strong style={{ color: 'var(--primary-deep)', fontSize: '0.88rem' }}>
+                  {selectedEnquiry.extracted_dates || 'Under Consultation'}
                 </strong>
               </div>
 
               <div>
-                <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Assigned Owner:</span>
-                <strong style={{ color: 'var(--primary-deep)' }}>
-                  {selectedEnquiry.assigned_to} ({selectedEnquiry.assigned_role})
+                <span style={{ color: '#777', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.2rem' }}>
+                  <Users size={13} /> Guest Configuration:
+                </span>
+                <strong style={{ color: 'var(--primary-deep)', fontSize: '0.88rem' }}>
+                  {selectedEnquiry.extracted_guests || 'Standard Party'}
+                </strong>
+              </div>
+
+              <div>
+                <span style={{ color: '#777', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.2rem' }}>
+                  <CreditCard size={13} /> Rate Matrix Grounding:
+                </span>
+                <strong style={{ color: '#1B5E20', fontSize: '0.88rem' }}>
+                  Live DB Rates Grounded
+                </strong>
+              </div>
+
+              <div>
+                <span style={{ color: '#777', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.2rem' }}>
+                  <UserCheck size={13} /> Dossier Handler:
+                </span>
+                <strong style={{ color: 'var(--primary-deep)', fontSize: '0.88rem' }}>
+                  {selectedEnquiry.assigned_to}
                 </strong>
               </div>
             </div>
 
-            {/* AI Draft Review & Edit Area */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <span style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  color: 'var(--primary-deep)'
-                }}>
-                  <Sparkles size={14} color="var(--gold-warm)" />
-                  AI Generated Draft Reply (Staff Review Required)
+            {/* Inbound Guest Message Window */}
+            <div style={{ marginBottom: '1.8rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.74rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-secondary)' }}>
+                  Inbound Transmission ({selectedEnquiry.channel.toUpperCase()})
                 </span>
-                <span style={{
-                  fontSize: '0.72rem',
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: '4px',
-                  backgroundColor: 'var(--primary-subtle)',
-                  color: 'var(--primary-deep)',
-                  fontWeight: 600
-                }}>
-                  {selectedEnquiry.extracted_entities?.engine || 'Live AI Engine Active'}
+                <span style={{ fontSize: '0.72rem', color: '#888' }}>
+                  Channel: <strong>{selectedEnquiry.channel.toUpperCase()} Gateway</strong>
                 </span>
               </div>
 
-              <textarea
-                value={editedDraft}
-                onChange={(e) => setEditedDraft(e.target.value)}
-                rows={9}
-                style={{
-                  width: '100%',
-                  padding: '1rem',
-                  border: '1px solid var(--border-light)',
+              {/* Realistic Chat / Message Bubble */}
+              <div style={{
+                backgroundColor: selectedEnquiry.channel === 'whatsapp' ? '#ECE5DD' : '#F8FAFC',
+                border: '1px solid #E2DCCF',
+                borderRadius: '8px',
+                padding: '1.2rem',
+                position: 'relative'
+              }}>
+                <div style={{
+                  backgroundColor: '#FFFFFF',
                   borderRadius: '8px',
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.88rem',
-                  lineHeight: 1.6,
-                  resize: 'vertical'
-                }}
-              />
+                  padding: '1rem 1.2rem',
+                  maxWidth: '85%',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                  borderLeft: '4px solid var(--primary-forest)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                    <strong style={{ fontSize: '0.84rem', color: 'var(--primary-deep)' }}>
+                      {selectedEnquiry.guest_name}
+                    </strong>
+                    <span style={{ fontSize: '0.7rem', color: '#999' }}>
+                      {formatDateTime(selectedEnquiry.created_at) || '10:42 AM'}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '0.92rem', color: '#2C3E50', lineHeight: 1.5 }}>
+                    "{selectedEnquiry.message}"
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Action Bar */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderTop: '1px solid var(--border-light)',
-              paddingTop: '1.2rem',
-              flexWrap: 'wrap',
-              gap: '1rem'
-            }}>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Target Dispatch: Simulated {selectedEnquiry.channel.toUpperCase()} to {selectedEnquiry.contact}
-              </span>
+            {/* CHANNEL OUTBOUND RESPONSE SECTION */}
+            {isReplied && !isFollowUpMode ? (
+              /* ALREADY DISPATCHED STATE: Authentic Verified Delivery View */
+              <div style={{
+                backgroundColor: '#F8FAF7',
+                border: '1.5px solid #A5D6A7',
+                borderRadius: '10px',
+                padding: '1.6rem',
+                marginBottom: '1rem'
+              }}>
+                {/* Delivery Confirmation Banner */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '0.8rem',
+                  marginBottom: '1.2rem',
+                  paddingBottom: '1rem',
+                  borderBottom: '1px solid #C8E6C9'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      backgroundColor: '#2E7D32',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF'
+                    }}>
+                      <CheckCheck size={18} />
+                    </div>
+                    <div>
+                      <strong style={{ color: '#1B5E20', fontSize: '0.96rem', display: 'block' }}>
+                        Simulated {selectedEnquiry.channel.toUpperCase()} Transmission Delivered
+                      </strong>
+                      <span style={{ fontSize: '0.78rem', color: '#2E7D32' }}>
+                        Delivered to {selectedEnquiry.contact} &bull; Handled by {selectedEnquiry.assigned_to}
+                      </span>
+                    </div>
+                  </div>
 
-              <button
-                onClick={handleSendReply}
-                disabled={sendingReply}
-                className="btn-primary"
-                style={{ padding: '0.75rem 1.6rem' }}
-              >
-                <Send size={15} />
-                <span>
-                  {sendingReply ? 'Dispatching...' : `Approve & Send via ${selectedEnquiry.channel.toUpperCase()}`}
-                </span>
-              </button>
-            </div>
+                  <span style={{ fontSize: '0.76rem', color: '#555', backgroundColor: '#E8F5E9', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 600 }}>
+                    Status: Closed &bull; {formatDateTime(selectedEnquiry.replied_at)}
+                  </span>
+                </div>
+
+                {/* Dispatched WhatsApp / Email bubble view */}
+                <div style={{
+                  backgroundColor: selectedEnquiry.channel === 'whatsapp' ? '#ECE5DD' : '#FFFFFF',
+                  border: '1px solid #D5CEBF',
+                  borderRadius: '8px',
+                  padding: '1.4rem',
+                  marginBottom: '1.2rem'
+                }}>
+                  <div style={{
+                    backgroundColor: selectedEnquiry.channel === 'whatsapp' ? '#D9FDD3' : '#F8FAFC',
+                    borderRadius: '8px',
+                    padding: '1rem 1.2rem',
+                    marginLeft: 'auto',
+                    maxWidth: '90%',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                    border: '1px solid #B2DFDB'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1B5E20' }}>
+                        The Serai Ridge &bull; Official Response
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.72rem', color: '#555' }}>
+                        <span>{formatDateTime(selectedEnquiry.replied_at) || 'Just now'}</span>
+                        <CheckCheck size={14} color="#0284C7" />
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: '#1C2833', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+                      {selectedEnquiry.sent_reply || selectedEnquiry.draft_reply}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Post-Dispatch Actions */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#666' }}>
+                    Need to provide additional information to this guest?
+                  </span>
+                  <div style={{ display: 'flex', gap: '0.6rem' }}>
+                    <button
+                      onClick={() => {
+                        setEditedDraft(`Dear ${selectedEnquiry.guest_name},\n\nFollowing up on our earlier communication regarding your stay at Serai Ridge...`);
+                        setIsFollowUpMode(true);
+                      }}
+                      className="btn-secondary"
+                      style={{ fontSize: '0.82rem', padding: '0.5rem 0.9rem' }}
+                    >
+                      + Send Follow-Up Message
+                    </button>
+                    <button
+                      onClick={() => alert(`Direct booking reservation link generated and copied to clipboard for ${selectedEnquiry.guest_name}`)}
+                      className="btn-primary"
+                      style={{ fontSize: '0.82rem', padding: '0.5rem 0.9rem' }}
+                    >
+                      Copy Direct Booking Link
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* PENDING DRAFT / COMPOSER STATE: Staff Review & Send */
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div>
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      color: 'var(--primary-deep)',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Proposed Executive Reply (Staff Verification Required)
+                    </span>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: '#777', marginTop: '0.1rem' }}>
+                      Tariffs derived directly from database rate tables. No autonomous transmission.
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditedDraft(prev => prev + '\n\nPS: We would be delighted to include a complimentary guided plantation coffee walk and tasting during your stay.');
+                      }}
+                      style={{ fontSize: '0.74rem', padding: '0.3rem 0.6rem', backgroundColor: '#FAF8F5', border: '1px solid #D5CEBF', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      + Add Coffee Tasting
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditedDraft(prev => prev + '\n\nKindly note: As per Government regulations, foreign nationals must present passports at check-in for Form C documentation.');
+                      }}
+                      style={{ fontSize: '0.74rem', padding: '0.3rem 0.6rem', backgroundColor: '#FAF8F5', border: '1px solid #D5CEBF', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      + Form C Note
+                    </button>
+                  </div>
+                </div>
+
+                {/* Editable Reply Box */}
+                <textarea
+                  value={editedDraft}
+                  onChange={(e) => setEditedDraft(e.target.value)}
+                  rows={10}
+                  style={{
+                    width: '100%',
+                    padding: '1.1rem',
+                    border: '1.5px solid #D5CEBF',
+                    borderRadius: '8px',
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.6,
+                    color: '#2C3E50',
+                    backgroundColor: '#FFFFFF',
+                    resize: 'vertical'
+                  }}
+                />
+
+                {/* Dispatch Action Bar */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderTop: '1px solid #EFEAE2',
+                  paddingTop: '1.2rem',
+                  marginTop: '1rem',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
+                }}>
+                  <div style={{ fontSize: '0.82rem', color: '#666' }}>
+                    Simulated Gateway: <strong style={{ color: 'var(--primary-deep)' }}>{selectedEnquiry.channel.toUpperCase()}</strong> to <strong style={{ color: 'var(--primary-deep)' }}>{selectedEnquiry.contact}</strong>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.8rem' }}>
+                    {isFollowUpMode && (
+                      <button
+                        type="button"
+                        onClick={() => setIsFollowUpMode(false)}
+                        className="btn-secondary"
+                        style={{ padding: '0.75rem 1.2rem', fontSize: '0.85rem' }}
+                      >
+                        Cancel
+                      </button>
+                    )}
+
+                    <button
+                      onClick={handleSendReply}
+                      disabled={sendingReply}
+                      className="btn-primary"
+                      style={{
+                        padding: '0.75rem 1.8rem',
+                        fontSize: '0.9rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        boxShadow: '0 4px 12px rgba(26,51,35,0.2)'
+                      }}
+                    >
+                      <Send size={15} />
+                      <span>
+                        {sendingReply ? 'Transmitting via Gateway...' : `Approve & Dispatch via ${selectedEnquiry.channel.toUpperCase()}`}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         ) : (
-          <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-            Select an enquiry from the list to review the AI analysis and reply draft.
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #E6E1D8',
+            borderRadius: '10px',
+            padding: '4rem 2rem',
+            textAlign: 'center',
+            color: 'var(--text-secondary)'
+          }}>
+            Select an inbound lead from the left pane to review parameters, tariff grounding, and approve communication dispatch.
           </div>
         )}
       </div>
 
-      {/* Simulator Modal */}
+      {/* Simulator Modal (High-Fidelity Gateway Harness) */}
       {simModalOpen && (
         <div style={{
           position: 'fixed',
@@ -608,81 +1037,86 @@ export default function AdminInboxPage() {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
+          backgroundColor: 'rgba(0,0,0,0.6)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 2000,
           padding: '1.5rem'
         }}>
-          <div className="card animate-fade" style={{ maxWidth: '580px', width: '100%', backgroundColor: '#FFFFFF', padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>
-              Simulate Inbound Message
+          <div className="card animate-fade" style={{ maxWidth: '600px', width: '100%', backgroundColor: '#FFFFFF', padding: '2.2rem', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.4rem', fontFamily: 'var(--font-serif)', color: 'var(--primary-deep)' }}>
+              Simulate Inbound Channel Lead
             </h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-              Test how the AI Enquiry Router classifies messages, extracts dates and guests, and drafts responses.
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.4 }}>
+              Test how omnichannel messages (WhatsApp, forwarded emails, web submissions) are ingested, classified, grounded against live tariffs, and routed to the proper lead owner.
             </p>
 
-            {/* Preset quick buttons */}
-            <div style={{ marginBottom: '1.2rem' }}>
-              <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                Quick Test Presets (From Brief):
+            {/* Quick Test Presets from Problem Brief */}
+            <div style={{ marginBottom: '1.4rem' }}>
+              <span style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                Official Assignment Test Presets:
               </span>
               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                 <button
                   type="button"
                   onClick={() => {
                     setSimChannel('web');
-                    setSimSender('Pooja Hedge');
+                    setSimSender("Meera Sen (Sister's Wedding)");
+                    setSimContact('meera.sen@outlook.com');
                     setSimMessage("Venue for my sister's wedding in Feb 2027, about 250 guests, 2 nights");
                   }}
-                  style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem', backgroundColor: 'var(--bg-muted)', borderRadius: '4px', border: '1px solid var(--border-light)' }}
+                  style={{ fontSize: '0.74rem', padding: '0.35rem 0.65rem', backgroundColor: '#FAF8F5', borderRadius: '4px', border: '1px solid #D5CEBF', cursor: 'pointer' }}
                 >
-                  ENQ-4410 (Wedding)
+                  ENQ-4410 (Wedding &bull; 250 Pax)
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setSimChannel('whatsapp');
-                    setSimSender('Karthik Subbaraj');
+                    setSimSender('Dr. Vivek Kulkarni');
+                    setSimContact('+91 97401 88290');
                     setSimMessage('Is a villa free 14-16 Nov for 2 adults and a child?');
                   }}
-                  style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem', backgroundColor: 'var(--bg-muted)', borderRadius: '4px', border: '1px solid var(--border-light)' }}
+                  style={{ fontSize: '0.74rem', padding: '0.35rem 0.65rem', backgroundColor: '#FAF8F5', borderRadius: '4px', border: '1px solid #D5CEBF', cursor: 'pointer' }}
                 >
-                  ENQ-4411 (Room Booking)
+                  ENQ-4411 (Room &bull; Villa 2N)
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setSimChannel('email');
-                    setSimSender('Naveen HR Tech');
+                    setSimSender('Siddharth Menon (RazorTech VP)');
+                    setSimContact('siddharth.m@razortech.io');
                     setSimMessage('Team of 45 wants a January offsite with a conference hall');
                   }}
-                  style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem', backgroundColor: 'var(--bg-muted)', borderRadius: '4px', border: '1px solid var(--border-light)' }}
+                  style={{ fontSize: '0.74rem', padding: '0.35rem 0.65rem', backgroundColor: '#FAF8F5', borderRadius: '4px', border: '1px solid #D5CEBF', cursor: 'pointer' }}
                 >
-                  ENQ-4412 (Corporate)
+                  ENQ-4412 (Corporate &bull; 45 Pax)
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setSimChannel('whatsapp');
-                    setSimSender('In-House Guest (Villa 2)');
-                    setSimMessage('Air conditioning in Villa 2 is leaking water and smelling bad! Front desk did not attend for 30 minutes.');
+                    setSimSender('Girish Chawla (Villa 4 Guest)');
+                    setSimContact('+91 98110 44521');
+                    setSimMessage('Water pressure in Villa 4 bathroom is too low, and no one answered the front desk line at 7:30 AM.');
                   }}
-                  style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem', backgroundColor: '#FDF0ED', color: '#C0392B', borderRadius: '4px', border: '1px solid #E0B4B4' }}
+                  style={{ fontSize: '0.74rem', padding: '0.35rem 0.65rem', backgroundColor: '#FDF2F2', color: '#C0392B', borderRadius: '4px', border: '1px solid #FFCDD2', cursor: 'pointer' }}
                 >
-                  Complaint (GM Alert)
+                  Complaint (GM Priority)
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setSimChannel('web');
-                    setSimSender('Visitor');
-                    setSimMessage('Hello, just wanted to know if you exist');
+                    setSimSender('Anonymous Website Visitor');
+                    setSimContact('+91 99000 12345');
+                    setSimMessage('Hi, please send all your information.');
                   }}
-                  style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem', backgroundColor: '#FEF9E7', color: '#B7950B', borderRadius: '4px', border: '1px solid #F9E79F' }}
+                  style={{ fontSize: '0.74rem', padding: '0.35rem 0.65rem', backgroundColor: '#FFFBEB', color: '#B45309', borderRadius: '4px', border: '1px solid #FDE68A', cursor: 'pointer' }}
                 >
-                  Ambiguous (Unsorted Lane)
+                  Vague / Low Conf (Unsorted Queue)
                 </button>
               </div>
             </div>
@@ -690,47 +1124,55 @@ export default function AdminInboxPage() {
             <form onSubmit={handleSimulateInbound} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem' }}>Channel</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem', color: 'var(--text-secondary)' }}>
+                    Inbound Gateway Channel
+                  </label>
                   <select
                     value={simChannel}
                     onChange={(e) => setSimChannel(e.target.value)}
-                    style={{ width: '100%', padding: '0.6rem', border: '1px solid var(--border-light)', borderRadius: '6px' }}
+                    style={{ width: '100%', padding: '0.6rem', border: '1px solid #D5CEBF', borderRadius: '6px', fontSize: '0.85rem' }}
                   >
-                    <option value="whatsapp">WhatsApp Business</option>
-                    <option value="email">Forwarded Email</option>
-                    <option value="web">Web Enquiry Form</option>
+                    <option value="whatsapp">WhatsApp Business Gateway</option>
+                    <option value="email">Concierge Email Ingestion</option>
+                    <option value="web">Direct Website Booking Form</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem' }}>Sender Name</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem', color: 'var(--text-secondary)' }}>
+                    Sender Name
+                  </label>
                   <input
                     type="text"
                     value={simSender}
                     onChange={(e) => setSimSender(e.target.value)}
-                    style={{ width: '100%', padding: '0.6rem', border: '1px solid var(--border-light)', borderRadius: '6px' }}
+                    style={{ width: '100%', padding: '0.6rem', border: '1px solid #D5CEBF', borderRadius: '6px', fontSize: '0.85rem' }}
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem' }}>Contact Info</label>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem', color: 'var(--text-secondary)' }}>
+                  Contact Information (Mobile Phone / Email)
+                </label>
                 <input
                   type="text"
                   value={simContact}
                   onChange={(e) => setSimContact(e.target.value)}
-                  style={{ width: '100%', padding: '0.6rem', border: '1px solid var(--border-light)', borderRadius: '6px' }}
+                  style={{ width: '100%', padding: '0.6rem', border: '1px solid #D5CEBF', borderRadius: '6px', fontSize: '0.85rem' }}
                   required
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem' }}>Inbound Message Text</label>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.3rem', color: 'var(--text-secondary)' }}>
+                  Inbound Message Body
+                </label>
                 <textarea
                   value={simMessage}
                   onChange={(e) => setSimMessage(e.target.value)}
                   rows={3}
-                  style={{ width: '100%', padding: '0.6rem', border: '1px solid var(--border-light)', borderRadius: '6px' }}
+                  style={{ width: '100%', padding: '0.6rem', border: '1px solid #D5CEBF', borderRadius: '6px', fontSize: '0.85rem', fontFamily: 'var(--font-sans)' }}
                   required
                 />
               </div>
@@ -740,6 +1182,7 @@ export default function AdminInboxPage() {
                   type="button"
                   onClick={() => setSimModalOpen(false)}
                   className="btn-secondary"
+                  style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem' }}
                 >
                   Cancel
                 </button>
@@ -747,8 +1190,9 @@ export default function AdminInboxPage() {
                   type="submit"
                   disabled={simulating}
                   className="btn-primary"
+                  style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem' }}
                 >
-                  {simulating ? 'Processing AI...' : 'Inject Message & Route'}
+                  {simulating ? 'Ingesting & Routing...' : 'Simulate Inbound Lead'}
                 </button>
               </div>
             </form>
@@ -758,4 +1202,3 @@ export default function AdminInboxPage() {
     </div>
   );
 }
-

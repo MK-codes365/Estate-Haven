@@ -159,11 +159,6 @@ export const api = {
       body: JSON.stringify(payload)
     });
     return handleResponse(res);
-  },
-
-  getPMSExportUrl(date) {
-    const token = localStorage.getItem('coffeeridge_token');
-    return `/api/admin/pms-export?date=${date || ''}`;
   }
 };
 

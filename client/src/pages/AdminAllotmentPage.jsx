@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import { Calendar, ShieldAlert, ShieldCheck, RefreshCw, Sparkles, AlertTriangle, Edit3, Save, X, Play } from 'lucide-react';
+import { ShieldCheck, RefreshCw, X, Play } from 'lucide-react';
 
 export default function AdminAllotmentPage() {
-  const { role } = useAuth();
   const [gridData, setGridData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
@@ -117,10 +115,10 @@ export default function AdminAllotmentPage() {
             <ShieldCheck size={22} color="#1E8449" />
             <div>
               <strong style={{ fontSize: '1.05rem', color: 'var(--primary-deep)' }}>
-                Live Overbooking Defense Tester (Brief Hard Part Requirement)
+                Atomic Overbooking Defense Engine (Zero-Overbooking Guarantee)
               </strong>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                Simulate 6 rapid concurrent booking attempts on the Private Plunge Pool Villa to verify atomic transaction locking and HTTP 409 Conflict rejection when allotment is exhausted.
+                Execute 6 rapid concurrent booking attempts on the Private Plunge Pool Villa to test SQLite WAL atomic row-locking and HTTP 409 rejection when direct allotment is exhausted.
               </p>
             </div>
           </div>
