@@ -8,7 +8,6 @@
 <div align="center">
 
 [![Live Web Application](https://img.shields.io/badge/Live_App-estate--haven--pink.vercel.app-193325?style=for-the-badge&logo=vercel&logoColor=white)](https://estate-haven-pink.vercel.app/)
-[![Live Backend API](https://img.shields.io/badge/Render_API-estate--haven.onrender.com-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://estate-haven.onrender.com/api/health)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-MK--codes365%2FEstate--Haven-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MK-codes365/Estate-Haven)
 [![Test Suite](https://img.shields.io/badge/Tests-16_Passed_%7C_100%25-success?style=for-the-badge&logo=node.js&logoColor=white)](https://github.com/MK-codes365/Estate-Haven)
 
@@ -47,9 +46,7 @@ Prior to this project, the resort suffered from two systemic leakages totaling *
 
 - **Frontend Portal (Vercel):** [https://estate-haven-pink.vercel.app](https://estate-haven-pink.vercel.app)
 - **Backend API (Render):** [https://estate-haven.onrender.com](https://estate-haven.onrender.com)
-- **API Health Endpoint:** [https://estate-haven.onrender.com/api/health](https://estate-haven.onrender.com/api/health)
-- **Live Room Inventory Endpoint:** [https://estate-haven.onrender.com/api/rooms](https://estate-haven.onrender.com/api/rooms)
-
+-
 ---
 
 ## 🏗️ System Architecture
@@ -263,16 +260,3 @@ The application includes an **Interactive Evaluator Role Switcher** at the top o
 | **Guest Visitor** | Rohan Mehta | `guest@example.com` | `guest123` | Direct room booking, 3-step checkout, test payment, wedding & corporate enquiry submission. |
 
 ---
-
-## 📦 Submission Deliverables
-
-As mandated by the submission guidelines, the project artifacts are organized as follows:
-- **`submission.zip`** (58 KB, < 25 MB limit):
-  - **`Technical_Design_Document.pdf`** *(and `.docx`)*: Architecture rationale, 5 explicit assumptions, data model, AI router fail-safes, UI decisions, trade-offs, and test results.
-  - **`deployment.md`**: Step-by-step local instructions, cloud deployment architecture, environment variable names, and demo login details.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details. Built for Company A, Chikkamagaluru, Karnataka.
