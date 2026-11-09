@@ -7,3 +7,4 @@ router.post('/validate-promo', bookingController.validatePromo);
 router.get('/reference/:reference', bookingController.getBookingByReference);
 
 module.exports = router;
+

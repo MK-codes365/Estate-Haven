@@ -7,3 +7,4 @@ router.get('/availability', roomController.checkAvailability);
 router.get('/:slug', roomController.getRoomBySlug);
 
 module.exports = router;
+

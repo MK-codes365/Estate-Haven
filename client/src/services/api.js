@@ -166,3 +166,4 @@ export const api = {
     return `/api/admin/pms-export?date=${date || ''}`;
   }
 };
+

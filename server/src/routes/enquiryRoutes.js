@@ -12,3 +12,4 @@ router.put('/:id', authenticateToken, requireRole('reservations_staff', 'general
 router.post('/:id/send-reply', authenticateToken, requireRole('reservations_staff', 'general_manager'), enquiryController.sendReply);
 
 module.exports = router;
+

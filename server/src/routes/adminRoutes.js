@@ -15,3 +15,4 @@ router.get('/metrics', authenticateToken, requireRole('reservations_staff', 'gen
 router.post('/test-overbooking-defense', authenticateToken, requireRole('reservations_staff', 'general_manager'), adminController.testOverbookingDefense);
 
 module.exports = router;
+

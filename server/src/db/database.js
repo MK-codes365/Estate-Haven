@@ -134,3 +134,4 @@ function initSchema() {
 initSchema();
 
 module.exports = db;
+

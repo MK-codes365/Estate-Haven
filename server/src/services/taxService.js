@@ -28,3 +28,4 @@ function calculateGST(effectiveDailyRatePerRoom, totalBaseAmount) {
 }
 
 module.exports = { calculateGST };
+

@@ -45,3 +45,4 @@ export function useBooking() {
   if (!context) throw new Error('useBooking must be used within a BookingProvider');
   return context;
 }
+
