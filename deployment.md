@@ -21,8 +21,8 @@
 
 ### Step 1: Clone and Enter the Repository
 ```bash
-git clone https://github.com/mukutkumar/resort-booking.git
-cd resort-booking
+git clone https://github.com/MK-codes365/Estate-Haven.git
+cd Estate-Haven
 ```
 
 ### Step 2: Install Dependencies

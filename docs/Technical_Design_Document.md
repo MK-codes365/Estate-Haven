@@ -269,11 +269,11 @@ The interface embodies the brief's aesthetic mandate: *"Clean layouts, white spa
 
 ## 9. Verification & Automated Test Results
 
-The test suite executed with Node.js built-in test runner verifies 15 core logic assertions across 4 test suites:
+The test suite executed with Node.js built-in test runner verifies 16 core logic assertions across 4 test suites:
 - **Tax Calculations:** Verified 12% GST for ₹7,200 tariff and 18% GST for ₹22,000 villa tariff.
-- **Zero-Overbooking Concurrency Defense:** Tested allotment exhaustion, atomic rollback, and blackout date blocking.
-- **AI Router & Sample Brief Data:** Verified `ENQ-4410` (Weddings), `ENQ-4411` (Grounded Villa Rates), `ENQ-4412` (Corporate Offsite), GM Complaint Escalation, and Unsorted Lane.
+- **Zero-Overbooking Concurrency Defense:** Tested allotment exhaustion, atomic rollback, safe key release, and blackout date blocking.
+- **AI Router & Sample Brief Data:** Verified `ENQ-4410` (Weddings), `ENQ-4411` (Grounded Villa Rates), `ENQ-4412` (Corporate Offsite), GM Complaint Escalation, Unsorted Lane triage, and Multi-Engine Async Router execution.
 - **PMS Export:** Verified CSV formatting, DPDP consent tracking, and Form C physical verification flags.
 
-*Test Outcome: 15 Passed, 0 Failed (Execution time: 576ms).*
+*Test Outcome: 16 Passed, 0 Failed.*
 
