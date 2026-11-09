@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { useBooking } from '../context/BookingContext';
 import {
   Calendar,
@@ -10,9 +10,7 @@ import {
   Sparkles,
   Waves,
   Sun,
-  Compass,
-  Volume2,
-  VolumeX
+  Compass
 } from 'lucide-react';
 
 export default function HomePage({ setActivePage }) {
@@ -26,17 +24,6 @@ export default function HomePage({ setActivePage }) {
     childrenCount,
     setChildrenCount
   } = useBooking();
-
-  const [isMuted, setIsMuted] = useState(true);
-  const videoRef = useRef(null);
-
-  const toggleSound = () => {
-    if (videoRef.current) {
-      const nextMuted = !videoRef.current.muted;
-      videoRef.current.muted = nextMuted;
-      setIsMuted(nextMuted);
-    }
-  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -61,10 +48,9 @@ export default function HomePage({ setActivePage }) {
       }}>
         {/* Full-bleed ambient resort video from public/Video 1.mp4 */}
         <video
-          ref={videoRef}
           autoPlay
           loop
-          muted={isMuted}
+          muted
           playsInline
           preload="metadata"
           style={{
@@ -95,93 +81,17 @@ export default function HomePage({ setActivePage }) {
           pointerEvents: 'none'
         }} />
 
-        {/* Floating Sound Toggle Pill (Awwwards / CRUE-Creative Style) */}
-        <button
-          type="button"
-          onClick={toggleSound}
-          aria-label={isMuted ? 'Turn ambient sound on' : 'Mute ambient sound'}
-          style={{
-            position: 'absolute',
-            top: 'clamp(1rem, 3vw, 2rem)',
-            right: 'clamp(1rem, 3vw, 2rem)',
-            zIndex: 25,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            backgroundColor: 'rgba(10, 18, 14, 0.78)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255, 255, 255, 0.22)',
-            borderRadius: '9999px',
-            padding: '0.5rem 1.1rem',
-            minHeight: '44px',
-            color: '#FAF8F5',
-            fontSize: '0.74rem',
-            fontWeight: 700,
-            letterSpacing: '1.4px',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          {isMuted ? (
-            <>
-              <VolumeX size={15} color="#C59B27" />
-              <span>SOUND OFF</span>
-            </>
-          ) : (
-            <>
-              <Volume2 size={15} color="#C59B27" />
-              <span>SOUND ON</span>
-            </>
-          )}
-        </button>
-
-        {/* Center Editorial Title Typography (Awwwards Big Display Style) */}
+        {/* Center Editorial Title & Subtitle */}
         <div style={{
           position: 'relative',
           zIndex: 10,
-          padding: 'clamp(4rem, 8vw, 6rem) clamp(1.2rem, 4vw, 3rem) 0 clamp(1.2rem, 4vw, 3rem)',
+          padding: 'clamp(5rem, 9vw, 8rem) clamp(1.5rem, 5vw, 4rem) 0 clamp(1.5rem, 5vw, 4rem)',
           maxWidth: '1280px',
-          margin: 'auto 0 clamp(1.5rem, 4vw, 3rem) 0'
+          margin: 'auto 0 clamp(2rem, 4vw, 3.5rem) 0'
         }}>
-          {/* Pill Badge matching design */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.65rem',
-            backgroundColor: 'rgba(12, 22, 17, 0.85)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.16)',
-            borderRadius: '9999px',
-            padding: '0.4rem 1.15rem',
-            marginBottom: '1.2rem',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-            maxWidth: '100%',
-            flexWrap: 'wrap'
-          }}>
-            <span style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: '#C59B27',
-              display: 'inline-block',
-              flexShrink: 0
-            }} />
-            <span style={{
-              fontSize: 'clamp(0.68rem, 1.8vw, 0.76rem)',
-              letterSpacing: '1.5px',
-              textTransform: 'uppercase',
-              color: '#D8E8DF',
-              fontWeight: 700
-            }}>
-              CHIKKAMAGALURU &bull; 76 KEYS COFFEE SANCTUARY
-            </span>
-          </div>
-
           <h1 style={{
             fontFamily: 'var(--font-serif)',
-            fontSize: 'clamp(2.4rem, 7vw, 6.4rem)',
+            fontSize: 'clamp(2.6rem, 7.5vw, 6.2rem)',
             color: '#FFFFFF',
             fontWeight: 500,
             lineHeight: 1.05,
@@ -194,12 +104,12 @@ export default function HomePage({ setActivePage }) {
           </h1>
 
           <p style={{
-            fontSize: 'clamp(0.95rem, 1.6vw, 1.35rem)',
-            color: '#E0EDE5',
+            fontSize: 'clamp(1rem, 1.6vw, 1.3rem)',
+            color: '#D8E8DF',
             maxWidth: '680px',
-            lineHeight: 1.6,
+            lineHeight: 1.65,
             fontWeight: 300,
-            marginBottom: '2rem'
+            marginBottom: '1.5rem'
           }}>
             100 acres of shade-grown Arabica estate in the Western Ghats. Direct booking privilege with zero OTA commissions and guaranteed lowest tariff.
           </p>
