@@ -210,3 +210,48 @@ input, select, textarea {
 .pulse-alert {
   animation: pulseGlow 1.8s infinite;
 }
+
+/* Awwwards-style Marquee Animations */
+@keyframes marqueeLeft {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marqueeRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: marqueeLeft 32s linear infinite;
+}
+
+.animate-marquee-left:hover {
+  animation-play-state: paused;
+}
+
+.animate-marquee-right {
+  display: flex;
+  width: max-content;
+  animation: marqueeRight 36s linear infinite;
+}
+
+.animate-marquee-right:hover {
+  animation-play-state: paused;
+}
+
+/* Image reveal hover zoom effect */
+.editorial-img-wrap {
+  overflow: hidden;
+  position: relative;
+}
+
+.editorial-img-wrap img {
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+}
+
+.editorial-img-wrap:hover img {
+  transform: scale(1.06);
+}

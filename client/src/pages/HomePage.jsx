@@ -1,9 +1,29 @@
 import React from 'react';
 import { useBooking } from '../context/BookingContext';
-import { Sparkles, Calendar, Users, Coffee, ArrowRight, ShieldCheck, Sun, Mountain, Waves, Award } from 'lucide-react';
+import {
+  Calendar,
+  Users,
+  Coffee,
+  ArrowRight,
+  ShieldCheck,
+  Award,
+  Sparkles,
+  Waves,
+  Sun,
+  Compass
+} from 'lucide-react';
 
 export default function HomePage({ setActivePage }) {
-  const { checkIn, setCheckIn, checkOut, setCheckOut, adults, setAdults, childrenCount, setChildrenCount } = useBooking();
+  const {
+    checkIn,
+    setCheckIn,
+    checkOut,
+    setCheckOut,
+    adults,
+    setAdults,
+    childrenCount,
+    setChildrenCount
+  } = useBooking();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -12,83 +32,117 @@ export default function HomePage({ setActivePage }) {
   };
 
   return (
-    <div className="animate-fade">
-      {/* Hero Section */}
+    <div className="animate-fade" style={{ backgroundColor: '#0A120E', color: '#FAF8F5' }}>
+
+      {/* =========================================================================
+          SECTION 1: HERO COVER VIDEO (CRUE-CREATIVE IMMERSIVE OPENER)
+          ========================================================================= */}
       <section style={{
         position: 'relative',
-        minHeight: '85vh',
+        minHeight: '100vh',
+        width: '100%',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundImage: 'linear-gradient(rgba(18, 38, 27, 0.55), rgba(18, 38, 27, 0.7)), url("https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=2000&q=85")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        color: '#FFFFFF',
-        padding: '5rem 1.5rem',
-        textAlign: 'center'
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        overflow: 'hidden'
       }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            padding: '0.4rem 1rem',
-            borderRadius: '999px',
-            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(8px)',
-            fontSize: '0.82rem',
-            fontWeight: 600,
-            letterSpacing: '1px',
+        {/* Full-bleed ambient resort video from public/Video 1.mp4 */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'brightness(0.62) contrast(1.08)',
+            zIndex: 1
+          }}
+        >
+          <source src="/Video 1.mp4" type="video/mp4" />
+        </video>
+
+        {/* Cinematic dark aesthetic vignette overlay */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(ellipse at center, rgba(10,18,14,0.3) 0%, rgba(10,18,14,0.85) 100%)',
+          zIndex: 2,
+          pointerEvents: 'none'
+        }} />
+
+        {/* Center Editorial Title Typography (Awwwards Big Display Style) */}
+        <div style={{
+          position: 'relative',
+          zIndex: 10,
+          padding: '6rem 3rem 0 3rem',
+          maxWidth: '1280px',
+          margin: 'auto 0 3rem 0'
+        }}>
+          <span style={{
+            display: 'block',
+            fontSize: 'clamp(0.8rem, 1.2vw, 0.95rem)',
+            letterSpacing: '3px',
             textTransform: 'uppercase',
-            marginBottom: '1.5rem',
-            border: '1px solid rgba(255, 255, 255, 0.25)'
+            color: '#C59B27',
+            fontWeight: 600,
+            marginBottom: '0.8rem'
           }}>
-            <Coffee size={14} color="#C59B27" /> Chikkamagaluru &bull; 76 Keys Private Coffee Sanctuary
-          </div>
+            Company A &bull; Chikkamagaluru, Karnataka
+          </span>
 
           <h1 style={{
             fontFamily: 'var(--font-serif)',
-            fontSize: 'clamp(2.4rem, 5vw, 4.2rem)',
+            fontSize: 'clamp(2.8rem, 7.5vw, 6.4rem)',
             color: '#FFFFFF',
-            fontWeight: 600,
-            letterSpacing: '-0.5px',
-            marginBottom: '1.2rem',
-            lineHeight: 1.15
+            fontWeight: 500,
+            lineHeight: 1.02,
+            letterSpacing: '-1.5px',
+            marginBottom: '1.4rem',
+            textTransform: 'none'
           }}>
-            Where Morning Mist Meets Coffee Blossoms
+            Where Morning Mist <br />
+            <span style={{ fontStyle: 'italic', fontWeight: 400, color: '#EAE5DD' }}>Meets Coffee Blossoms.</span>
           </h1>
 
           <p style={{
-            fontSize: 'clamp(1rem, 2vw, 1.25rem)',
-            color: '#E0EDE5',
+            fontSize: 'clamp(1rem, 1.6vw, 1.35rem)',
+            color: '#D1DDD6',
             maxWidth: '680px',
-            margin: '0 auto 2.5rem auto',
+            lineHeight: 1.6,
             fontWeight: 300,
-            lineHeight: 1.7
+            marginBottom: '2.5rem'
           }}>
-            Escape to 100 acres of shade-grown Arabica estate in Karnataka’s Western Ghats. Book direct for our guaranteed lowest tariff, priority villa allotment, and complimentary coffee harvest safaris.
+            100 acres of shade-grown Arabica estate in the Western Ghats. Direct booking privilege with zero OTA commissions and guaranteed lowest tariff.
           </p>
+        </div>
 
-          {/* Quick Direct Booking Search Bar */}
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            color: 'var(--text-primary)',
-            borderRadius: '16px',
-            padding: '1.2rem 1.5rem',
-            boxShadow: 'var(--shadow-xl)',
-            maxWidth: '960px',
-            margin: '0 auto',
-            textAlign: 'left'
-          }}>
+        {/* Bottom Booking Console floating over hero */}
+        <div style={{
+          position: 'relative',
+          zIndex: 10,
+          backgroundColor: 'rgba(20, 36, 28, 0.88)',
+          backdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.12)',
+          padding: '1.4rem 3rem'
+        }}>
+          <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
             <form onSubmit={handleSearch} style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-              gap: '1rem',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+              gap: '1.2rem',
               alignItems: 'flex-end'
             }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  <Calendar size={13} style={{ display: 'inline', marginRight: '4px' }} /> Check-In
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#A0B4AA', marginBottom: '0.4rem' }}>
+                  <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} /> Check-In
                 </label>
                 <input
                   type="date"
@@ -97,18 +151,19 @@ export default function HomePage({ setActivePage }) {
                   style={{
                     width: '100%',
                     padding: '0.65rem 0.8rem',
-                    border: '1px solid var(--border-light)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '6px',
-                    fontWeight: 600,
-                    color: 'var(--primary-deep)'
+                    color: '#FFFFFF',
+                    fontWeight: 600
                   }}
                   required
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  <Calendar size={13} style={{ display: 'inline', marginRight: '4px' }} /> Check-Out
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#A0B4AA', marginBottom: '0.4rem' }}>
+                  <Calendar size={12} style={{ display: 'inline', marginRight: '4px' }} /> Check-Out
                 </label>
                 <input
                   type="date"
@@ -117,18 +172,19 @@ export default function HomePage({ setActivePage }) {
                   style={{
                     width: '100%',
                     padding: '0.65rem 0.8rem',
-                    border: '1px solid var(--border-light)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '6px',
-                    fontWeight: 600,
-                    color: 'var(--primary-deep)'
+                    color: '#FFFFFF',
+                    fontWeight: 600
                   }}
                   required
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                  <Users size={13} style={{ display: 'inline', marginRight: '4px' }} /> Guests
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#A0B4AA', marginBottom: '0.4rem' }}>
+                  <Users size={12} style={{ display: 'inline', marginRight: '4px' }} /> Guests & Children
                 </label>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <select
@@ -137,15 +193,17 @@ export default function HomePage({ setActivePage }) {
                     style={{
                       flex: 1,
                       padding: '0.65rem 0.6rem',
-                      border: '1px solid var(--border-light)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
                       borderRadius: '6px',
+                      color: '#FFFFFF',
                       fontWeight: 600
                     }}
                   >
-                    <option value="1">1 Adult</option>
-                    <option value="2">2 Adults</option>
-                    <option value="3">3 Adults</option>
-                    <option value="4">4 Adults</option>
+                    <option value="1" style={{ color: '#000' }}>1 Adult</option>
+                    <option value="2" style={{ color: '#000' }}>2 Adults</option>
+                    <option value="3" style={{ color: '#000' }}>3 Adults</option>
+                    <option value="4" style={{ color: '#000' }}>4 Adults</option>
                   </select>
                   <select
                     value={childrenCount}
@@ -153,14 +211,16 @@ export default function HomePage({ setActivePage }) {
                     style={{
                       flex: 1,
                       padding: '0.65rem 0.6rem',
-                      border: '1px solid var(--border-light)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
                       borderRadius: '6px',
+                      color: '#FFFFFF',
                       fontWeight: 600
                     }}
                   >
-                    <option value="0">0 Kids</option>
-                    <option value="1">1 Kid</option>
-                    <option value="2">2 Kids</option>
+                    <option value="0" style={{ color: '#000' }}>0 Kids</option>
+                    <option value="1" style={{ color: '#000' }}>1 Kid</option>
+                    <option value="2" style={{ color: '#000' }}>2 Kids</option>
                   </select>
                 </div>
               </div>
@@ -168,332 +228,504 @@ export default function HomePage({ setActivePage }) {
               <div>
                 <button
                   type="submit"
-                  className="btn-primary"
-                  style={{ width: '100%', padding: '0.8rem 1rem', height: '46px' }}
+                  className="btn-gold"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1.4rem',
+                    height: '46px',
+                    fontSize: '0.88rem',
+                    letterSpacing: '0.5px',
+                    boxShadow: '0 6px 20px rgba(197, 155, 39, 0.35)'
+                  }}
                 >
-                  <span>Check Availability</span>
+                  <span>Reserve Direct</span>
                   <ArrowRight size={16} />
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 2: INFINITE RUNNING MARQUEE (CRUE CREATIVE SIGNATURE BANNER)
+          ========================================================================= */}
+      <section style={{
+        overflow: 'hidden',
+        backgroundColor: '#0F1A14',
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        padding: '1.4rem 0'
+      }}>
+        <div className="animate-marquee-left" style={{ gap: '2.5rem', alignItems: 'center' }}>
+          {[1, 2].map((i) => (
+            <React.Fragment key={i}>
+              <span style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)', letterSpacing: '2px', color: '#FAF8F5', textTransform: 'uppercase' }}>
+                The Serai Ridge Estate &bull; Chikkamagaluru
+              </span>
+              <span style={{ color: '#C59B27', fontSize: '1.4rem' }}>&bull;</span>
+              <span style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)', letterSpacing: '2px', color: '#A0B4AA', textTransform: 'uppercase', fontStyle: 'italic' }}>
+                76 Keys Matrix: 64 Suites & 12 Plunge Pool Villas
+              </span>
+              <span style={{ color: '#C59B27', fontSize: '1.4rem' }}>&bull;</span>
+              <span style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)', letterSpacing: '2px', color: '#FAF8F5', textTransform: 'uppercase' }}>
+                Guaranteed Direct Allotment &bull; Zero Overbooking Hard Lock
+              </span>
+              <span style={{ color: '#C59B27', fontSize: '1.4rem' }}>&bull;</span>
+              <span style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)', letterSpacing: '2px', color: '#C59B27', textTransform: 'uppercase' }}>
+                100 Acres Arabica Plantation &bull; Bhadra Lawns
+              </span>
+              <span style={{ color: '#C59B27', fontSize: '1.4rem' }}>&bull;</span>
+            </React.Fragment>
+          ))}
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 3: EDITORIAL ABOUT & STORYTELLING WITH PHOTO 1 & PHOTO 2
+          ========================================================================= */}
+      <section style={{ padding: '7rem 2rem', maxWidth: '1280px', margin: '0 auto' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+          gap: '4rem',
+          alignItems: 'center'
+        }}>
+          {/* Left Column: Bold Typography & Narrative */}
+          <div>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontSize: '0.74rem',
+              letterSpacing: '2px',
+              textTransform: 'uppercase',
+              color: '#C59B27',
+              fontWeight: 700,
+              marginBottom: '1rem'
+            }}>
+              <Compass size={14} /> Heritage In Baba Budangiri Hills
+            </div>
+
+            <h2 style={{
+              fontSize: 'clamp(2.4rem, 4.2vw, 3.8rem)',
+              color: '#FFFFFF',
+              fontFamily: 'var(--font-serif)',
+              lineHeight: 1.15,
+              marginBottom: '1.6rem'
+            }}>
+              Crafted For Those Who Value Stillness Over Speed.
+            </h2>
+
+            <p style={{
+              fontSize: '1.05rem',
+              color: '#A0B4AA',
+              lineHeight: 1.8,
+              marginBottom: '1.8rem',
+              fontWeight: 300
+            }}>
+              Surrounded by coffee hills and centuries-old silver oak canopies, The Serai Ridge is Company A’s flagship ₹28-crore estate retreat. Designed with expansive private decks, heated plunge pools, and intimate planter verandas.
+            </p>
 
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: '0.8rem',
-              paddingTop: '0.8rem',
-              borderTop: '1px solid var(--border-light)',
-              fontSize: '0.78rem',
-              color: 'var(--text-secondary)',
-              flexWrap: 'wrap',
-              gap: '0.5rem'
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1.5rem',
+              marginBottom: '2.5rem',
+              borderTop: '1px solid rgba(255,255,255,0.1)',
+              paddingTop: '1.8rem'
             }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--terracotta)', fontWeight: 600 }}>
-                <Sparkles size={14} /> Direct Privilege: 10% Extra Discount automatically applied with promo code DIRECT10
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <ShieldCheck size={14} color="#1E8449" /> Real-time Allotment &bull; Zero Overbooking Guarantee
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Direct Booking Advantage Section */}
-      <section style={{ padding: '4.5rem 0', backgroundColor: '#FFFFFF' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', maxWidth: '650px', margin: '0 auto 3rem auto' }}>
-            <span style={{ fontSize: '0.8rem', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--coffee-accent)', fontWeight: 700 }}>
-              The Direct Difference
-            </span>
-            <h2 style={{ fontSize: '2.2rem', marginTop: '0.5rem', marginBottom: '0.8rem' }}>
-              Why Book Directly With Us?
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.98rem' }}>
-              Bypass online travel agency markups. When you book directly on our website, every rupee goes straight into preserving our heritage estate and pampering you.
-            </p>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '1.8rem'
-          }}>
-            <div className="card" style={{ borderTop: '4px solid var(--primary-deep)' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '8px', backgroundColor: 'var(--primary-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', color: 'var(--primary-deep)' }}>
-                <Award size={22} />
+              <div>
+                <span style={{ display: 'block', fontSize: '2.4rem', fontFamily: 'var(--font-serif)', color: '#C59B27', fontWeight: 600 }}>
+                  76 Keys
+                </span>
+                <span style={{ fontSize: '0.82rem', color: '#A0B4AA', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  64 Rooms & 12 Villas
+                </span>
               </div>
-              <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Guaranteed Lowest Rate</h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                Save 10% to 15% compared to commercial travel agencies with promo code <code>DIRECT10</code>.
-              </p>
-            </div>
 
-            <div className="card" style={{ borderTop: '4px solid var(--gold-warm)' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '8px', backgroundColor: 'var(--gold-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', color: 'var(--gold-warm)' }}>
-                <Coffee size={22} />
+              <div>
+                <span style={{ display: 'block', fontSize: '2.4rem', fontFamily: 'var(--font-serif)', color: '#C59B27', fontWeight: 600 }}>
+                  100%
+                </span>
+                <span style={{ fontSize: '0.82rem', color: '#A0B4AA', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Direct Allotment Isolation
+                </span>
               </div>
-              <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Complimentary Coffee Safaris</h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                Exclusive guided plantation harvest walks and private bean-to-cup brewing workshops for direct guests.
-              </p>
             </div>
 
-            <div className="card" style={{ borderTop: '4px solid var(--terracotta)' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '8px', backgroundColor: '#FBECE7', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', color: 'var(--terracotta)' }}>
-                <Sun size={22} />
-              </div>
-              <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Flexible Check-in & Cancellation</h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                Direct human assistance from our local Chikkamagaluru front desk without call-center runarounds.
-              </p>
-            </div>
-
-            <div className="card" style={{ borderTop: '4px solid var(--primary-forest)' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '8px', backgroundColor: 'var(--primary-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', color: 'var(--primary-forest)' }}>
-                <Waves size={22} />
-              </div>
-              <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Priority Villa Allocation</h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                Direct guests receive preferential room placement with superior valley views and secluded privacy.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Curated Rooms Preview */}
-      <section style={{ padding: '4.5rem 0', backgroundColor: 'var(--bg-muted)' }}>
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <span style={{ fontSize: '0.8rem', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--coffee-accent)', fontWeight: 700 }}>
-                76 Luxury Keys
-              </span>
-              <h2 style={{ fontSize: '2.2rem', marginTop: '0.3rem' }}>
-                Suites & Heated Plunge Pool Villas
-              </h2>
-            </div>
             <button
               onClick={() => { setActivePage('rooms'); window.scrollTo(0, 0); }}
-              className="btn-secondary"
+              className="btn-primary"
+              style={{
+                backgroundColor: '#FAF8F5',
+                color: '#12261B',
+                padding: '0.9rem 2rem',
+                fontSize: '0.9rem',
+                letterSpacing: '0.5px'
+              }}
             >
-              <span>View All 4 Categories</span>
+              <span>Explore Room Suites & Villas</span>
               <ArrowRight size={16} />
             </button>
           </div>
 
+          {/* Right Column: Layered Editorial Image Composition (Photo 1 & Photo 2) */}
+          <div style={{ position: 'relative' }}>
+            {/* Primary Large Image: Photo 1 */}
+            <div className="editorial-img-wrap" style={{
+              borderRadius: '16px',
+              border: '1px solid rgba(255,255,255,0.12)',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6)',
+              height: '480px'
+            }}>
+              <img
+                src="/Photo 1.jpg"
+                alt="Serai Ridge Estate Grounds & Architecture"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+
+            {/* Floating Overlapping Accent Image: Photo 2 */}
+            <div className="editorial-img-wrap" style={{
+              position: 'absolute',
+              bottom: '-12%',
+              left: '-10%',
+              width: '55%',
+              height: '240px',
+              borderRadius: '12px',
+              border: '4px solid #0A120E',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.7)',
+              zIndex: 5
+            }}>
+              <img
+                src="/Photo 2.jpg"
+                alt="Estate Sunset Atmosphere"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 4: HORIZONTAL GALLERY WITH PHOTO 3, PHOTO 4, PHOTO 5
+          ========================================================================= */}
+      <section style={{
+        backgroundColor: '#0F1A14',
+        padding: '6rem 0',
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)'
+      }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            marginBottom: '3rem',
+            flexWrap: 'wrap',
+            gap: '1rem'
+          }}>
+            <div>
+              <span style={{ fontSize: '0.74rem', letterSpacing: '2px', textTransform: 'uppercase', color: '#C59B27', fontWeight: 700 }}>
+                Estate Haven Visual Journal
+              </span>
+              <h2 style={{ fontSize: 'clamp(2rem, 3.5vw, 3rem)', color: '#FFFFFF', fontFamily: 'var(--font-serif)', marginTop: '0.4rem' }}>
+                Architecture & Canopy Immersion
+              </h2>
+            </div>
+
+            <span style={{ fontSize: '0.85rem', color: '#A0B4AA' }}>
+              Original Estate Photography
+            </span>
+          </div>
+
+          {/* 3-Card Visual Grid with Photo 3, Photo 4, Photo 5 */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '2rem'
           }}>
-            {/* Card 1: Private Plunge Pool Villa */}
-            <div className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ position: 'relative', height: '240px' }}>
+            {/* Card 1: Photo 3 */}
+            <div style={{
+              backgroundColor: '#14241C',
+              borderRadius: '14px',
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.08)'
+            }}>
+              <div className="editorial-img-wrap" style={{ height: '320px' }}>
                 <img
-                  src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80"
-                  alt="Private Plunge Pool Villa"
+                  src="/Photo 3.jpg"
+                  alt="Plunge Pool Villa View"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-                <span className="badge badge-gold" style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
-                  Signature Villa &bull; 12 Keys
-                </span>
               </div>
-              <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.35rem', marginBottom: '0.4rem' }}>Private Plunge Pool Villa</h3>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                    1,350 sq.ft ultra-luxury villa featuring private heated plunge pool, estate canopy sun deck, and dedicated butler service.
-                  </p>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                    <span className="badge badge-primary">Heated Pool</span>
-                    <span className="badge badge-primary">Butler On-Call</span>
-                    <span className="badge badge-primary">4 Guests</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--border-light)' }}>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>From</span>
-                    <span style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--primary-deep)' }}>₹22,000</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}> / night + 18% GST</span>
-                  </div>
-                  <button
-                    onClick={() => { setActivePage('rooms'); window.scrollTo(0, 0); }}
-                    className="btn-primary"
-                    style={{ fontSize: '0.85rem', padding: '0.55rem 1rem' }}
-                  >
-                    Select Villa
-                  </button>
-                </div>
+              <div style={{ padding: '1.6rem' }}>
+                <span style={{ fontSize: '0.72rem', letterSpacing: '1px', textTransform: 'uppercase', color: '#C59B27', fontWeight: 600 }}>
+                  Signature Keys &bull; 12 Villas
+                </span>
+                <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
+                  Private Heated Plunge Pool Villas
+                </h3>
+                <p style={{ fontSize: '0.88rem', color: '#A0B4AA', lineHeight: 1.5, margin: 0 }}>
+                  1,350 sq.ft secluded sanctuary with heated private pool and panoramic canopy views over the Western Ghats.
+                </p>
               </div>
             </div>
 
-            {/* Card 2: Estate Valley Suite */}
-            <div className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ position: 'relative', height: '240px' }}>
+            {/* Card 2: Photo 4 */}
+            <div style={{
+              backgroundColor: '#14241C',
+              borderRadius: '14px',
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.08)'
+            }}>
+              <div className="editorial-img-wrap" style={{ height: '320px' }}>
                 <img
-                  src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80"
-                  alt="Estate Valley Suite"
+                  src="/Photo 4.jpg"
+                  alt="Estate Valley Suites"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-                <span className="badge badge-primary" style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
-                  Estate Suite &bull; 24 Keys
-                </span>
               </div>
-              <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.35rem', marginBottom: '0.4rem' }}>Estate Valley Suite</h3>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                    680 sq.ft glass-walled suite suspended over the plantation valley with mountain sunrise balcony and soaking terrazzo tub.
-                  </p>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                    <span className="badge badge-primary">Valley Balcony</span>
-                    <span className="badge badge-primary">Terrazzo Tub</span>
-                    <span className="badge badge-primary">3 Guests</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--border-light)' }}>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>From</span>
-                    <span style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--primary-deep)' }}>₹9,800</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}> / night + 18% GST</span>
-                  </div>
-                  <button
-                    onClick={() => { setActivePage('rooms'); window.scrollTo(0, 0); }}
-                    className="btn-primary"
-                    style={{ fontSize: '0.85rem', padding: '0.55rem 1rem' }}
-                  >
-                    Select Suite
-                  </button>
-                </div>
+              <div style={{ padding: '1.6rem' }}>
+                <span style={{ fontSize: '0.72rem', letterSpacing: '1px', textTransform: 'uppercase', color: '#C59B27', fontWeight: 600 }}>
+                  Estate Suites &bull; 24 Keys
+                </span>
+                <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
+                  Estate Valley Suites
+                </h3>
+                <p style={{ fontSize: '0.88rem', color: '#A0B4AA', lineHeight: 1.5, margin: 0 }}>
+                  680 sq.ft glass-walled suites cantilevered over coffee trees with deep terrazzo tubs and morning mist balconies.
+                </p>
               </div>
             </div>
 
-            {/* Card 3: Plantation Classic Room */}
-            <div className="card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ position: 'relative', height: '240px' }}>
+            {/* Card 3: Photo 5 */}
+            <div style={{
+              backgroundColor: '#14241C',
+              borderRadius: '14px',
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.08)'
+            }}>
+              <div className="editorial-img-wrap" style={{ height: '320px' }}>
                 <img
-                  src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"
-                  alt="Plantation Classic Room"
+                  src="/Photo 5.jpg"
+                  alt="Planter's Cottage & Lawns"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-                <span className="badge badge-info" style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
-                  Classic &bull; 28 Keys
-                </span>
               </div>
-              <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.35rem', marginBottom: '0.4rem' }}>Plantation Classic Room</h3>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                    440 sq.ft colonial teakwood estate room overlooking coffee groves with private veranda and artisan pour-over coffee bar.
-                  </p>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                    <span className="badge badge-primary">Estate Veranda</span>
-                    <span className="badge badge-primary">12% GST Slab</span>
-                    <span className="badge badge-primary">2 Guests</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--border-light)' }}>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>From</span>
-                    <span style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--primary-deep)' }}>₹7,200</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}> / night + 12% GST</span>
-                  </div>
-                  <button
-                    onClick={() => { setActivePage('rooms'); window.scrollTo(0, 0); }}
-                    className="btn-primary"
-                    style={{ fontSize: '0.85rem', padding: '0.55rem 1rem' }}
-                  >
-                    Select Room
-                  </button>
-                </div>
+              <div style={{ padding: '1.6rem' }}>
+                <span style={{ fontSize: '0.72rem', letterSpacing: '1px', textTransform: 'uppercase', color: '#C59B27', fontWeight: 600 }}>
+                  Heritage Living &bull; 28 Keys
+                </span>
+                <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
+                  Plantation Classic & Bhadra Lawns
+                </h3>
+                <p style={{ fontSize: '0.88rem', color: '#A0B4AA', lineHeight: 1.5, margin: 0 }}>
+                  Teakwood colonial verandas and verdant open lawns framed by shade-grown coffee and silver oaks for unforgettable weddings.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Events & Offsites Dual Banner */}
-      <section style={{ padding: '5rem 0', backgroundColor: '#FFFFFF' }}>
-        <div className="container">
+      {/* =========================================================================
+          SECTION 5: SECOND RUNNING MARQUEE (REVERSE DIRECTION)
+          ========================================================================= */}
+      <section style={{
+        overflow: 'hidden',
+        backgroundColor: '#0A120E',
+        padding: '1.2rem 0'
+      }}>
+        <div className="animate-marquee-right" style={{ gap: '2.5rem', alignItems: 'center' }}>
+          {[1, 2].map((i) => (
+            <React.Fragment key={i}>
+              <span style={{ fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#C59B27', fontWeight: 600 }}>
+                Direct Booking Privilege: Promo Code DIRECT10
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>/</span>
+              <span style={{ fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#FAF8F5' }}>
+                Save 20% OTA Commission
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>/</span>
+              <span style={{ fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#A0B4AA' }}>
+                Complimentary Guided Harvest Safari & Tasting
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>/</span>
+              <span style={{ fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#FAF8F5' }}>
+                Priority Villa Placement
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>/</span>
+            </React.Fragment>
+          ))}
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 6: WEDDINGS & CORPORATE OFFSITES IMMERSION
+          ========================================================================= */}
+      <section style={{ padding: '6rem 2rem', maxWidth: '1280px', margin: '0 auto' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          gap: '2.5rem'
+        }}>
+          {/* Destination Wedding Buyouts */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-            gap: '2.5rem'
+            position: 'relative',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            minHeight: '440px',
+            border: '1px solid rgba(255,255,255,0.12)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            padding: '2.5rem'
           }}>
-            {/* Weddings Card */}
             <div style={{
-              position: 'relative',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              minHeight: '380px',
-              backgroundImage: 'linear-gradient(rgba(25, 51, 37, 0.65), rgba(25, 51, 37, 0.8)), url("https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=80")',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: 'linear-gradient(to top, rgba(10,18,14,0.92) 20%, rgba(10,18,14,0.3) 100%), url("/Photo 2.jpg")',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              color: '#FFFFFF',
-              padding: '2.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end'
-            }}>
-              <span className="badge badge-gold" style={{ width: 'fit-content', marginBottom: '1rem' }}>
-                Bhadra Lawns &bull; Up to 500 Guests
+              zIndex: 1
+            }} />
+
+            <div style={{ position: 'relative', zIndex: 5 }}>
+              <span style={{
+                display: 'inline-block',
+                fontSize: '0.72rem',
+                letterSpacing: '1.5px',
+                textTransform: 'uppercase',
+                color: '#C59B27',
+                fontWeight: 700,
+                marginBottom: '0.6rem'
+              }}>
+                Bhadra Lawns &bull; 500 Guests
               </span>
-              <h3 style={{ fontSize: '1.8rem', color: '#FFFFFF', marginBottom: '0.8rem' }}>
-                Destination Weddings in the Clouds
+              <h3 style={{ fontSize: '2rem', color: '#FFFFFF', fontFamily: 'var(--font-serif)', marginBottom: '0.8rem' }}>
+                Destination Weddings in the Mist
               </h3>
-              <p style={{ color: '#E0EDE5', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-                Exchange vows framed by emerald silver oak canopies and mountain breezes. Residential buyouts with all 76 keys and bespoke culinary experiences.
+              <p style={{ color: '#D1DDD6', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                Exclusive 76-key estate buyouts with authentic Malnad royal banqueting, Sangeet under silver oak canopies, and concierge coordination.
               </p>
               <button
                 onClick={() => { setActivePage('weddings'); window.scrollTo(0, 0); }}
                 className="btn-gold"
-                style={{ width: 'fit-content' }}
+                style={{ padding: '0.75rem 1.6rem', fontSize: '0.85rem' }}
               >
                 <span>Plan Your Wedding</span>
-                <ArrowRight size={16} />
+                <ArrowRight size={15} />
               </button>
             </div>
+          </div>
 
-            {/* Corporate Offsites Card */}
+          {/* Corporate Offsites & Retreats */}
+          <div style={{
+            position: 'relative',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            minHeight: '440px',
+            border: '1px solid rgba(255,255,255,0.12)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            padding: '2.5rem'
+          }}>
             <div style={{
-              position: 'relative',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              minHeight: '380px',
-              backgroundImage: 'linear-gradient(rgba(36, 70, 52, 0.65), rgba(36, 70, 52, 0.85)), url("https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1000&q=80")',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: 'linear-gradient(to top, rgba(10,18,14,0.92) 20%, rgba(10,18,14,0.3) 100%), url("/Photo 1.jpg")',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              color: '#FFFFFF',
-              padding: '2.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end'
-            }}>
-              <span className="badge badge-info" style={{ width: 'fit-content', marginBottom: '1rem' }}>
-                The Planter’s Conference Pavilion
+              zIndex: 1
+            }} />
+
+            <div style={{ position: 'relative', zIndex: 5 }}>
+              <span style={{
+                display: 'inline-block',
+                fontSize: '0.72rem',
+                letterSpacing: '1.5px',
+                textTransform: 'uppercase',
+                color: '#A0B4AA',
+                fontWeight: 700,
+                marginBottom: '0.6rem'
+              }}>
+                The Planter's Pavilion &bull; 80 Pax
               </span>
-              <h3 style={{ fontSize: '1.8rem', color: '#FFFFFF', marginBottom: '0.8rem' }}>
-                Leadership & Corporate Offsites
+              <h3 style={{ fontSize: '2rem', color: '#FFFFFF', fontFamily: 'var(--font-serif)', marginBottom: '0.8rem' }}>
+                Leadership & Corporate Retreats
               </h3>
-              <p style={{ color: '#E0EDE5', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-                Recharge your team in serene seclusion. State-of-the-art conference facilities, fiber connectivity, team coffee harvest competitions, and outdoor barbecue networking.
+              <p style={{ color: '#D1DDD6', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                High-speed fiber connectivity, dedicated conference amphitheater, coffee trail networking challenges, and twilight outdoor barbecue banquets.
               </p>
               <button
                 onClick={() => { setActivePage('offsites'); window.scrollTo(0, 0); }}
                 className="btn-primary"
-                style={{ width: 'fit-content', backgroundColor: '#FFFFFF', color: 'var(--primary-deep)' }}
+                style={{
+                  backgroundColor: '#FAF8F5',
+                  color: '#12261B',
+                  padding: '0.75rem 1.6rem',
+                  fontSize: '0.85rem'
+                }}
               >
                 <span>Explore Offsite Packages</span>
-                <ArrowRight size={16} />
+                <ArrowRight size={15} />
               </button>
             </div>
           </div>
         </div>
       </section>
+
+      {/* =========================================================================
+          SECTION 7: DIRECT BOOKING COMMITMENT & REVENUE PROTECTION
+          ========================================================================= */}
+      <section style={{
+        backgroundColor: '#0F1A14',
+        padding: '5rem 2rem',
+        borderTop: '1px solid rgba(255,255,255,0.06)'
+      }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
+          <span style={{ fontSize: '0.74rem', letterSpacing: '2px', textTransform: 'uppercase', color: '#C59B27', fontWeight: 700 }}>
+            Zero OTA Commissions &bull; Direct Value
+          </span>
+          <h2 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.4rem)', color: '#FFFFFF', fontFamily: 'var(--font-serif)', marginTop: '0.6rem', marginBottom: '1rem' }}>
+            Book Directly With Company A
+          </h2>
+          <p style={{ color: '#A0B4AA', maxWidth: '640px', margin: '0 auto 2.5rem auto', fontSize: '0.98rem', lineHeight: 1.7 }}>
+            By booking through our direct website, you enjoy our guaranteed lowest tariff, avoid online travel agency surcharges, and support sustainable shade-grown coffee farming in Chikkamagaluru.
+          </p>
+
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '1.2rem',
+            flexWrap: 'wrap',
+            justifyContent: 'center'
+          }}>
+            <button
+              onClick={() => { setActivePage('rooms'); window.scrollTo(0, 0); }}
+              className="btn-gold"
+              style={{ padding: '0.9rem 2.2rem', fontSize: '0.95rem' }}
+            >
+              <span>View Available Dates & Villas</span>
+              <ArrowRight size={16} />
+            </button>
+
+            <span style={{ fontSize: '0.82rem', color: '#A0B4AA', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <ShieldCheck size={16} color="#C59B27" /> Hard Allotment Isolation &bull; Instant Confirmation
+            </span>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }
-
