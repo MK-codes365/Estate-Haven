@@ -98,10 +98,11 @@ For manual sign-in via `/login`, use the credentials below:
 
 ## 4. Production Deployment Guide
 
-The application is architected for single-instance or containerized cloud deployment (Render, Railway, Fly.io, AWS EC2, or DigitalOcean App Platform).
+The application is architected for single-instance or containerized cloud deployment (Render, Railway, Fly.io, AWS EC2, or DigitalOcean App Platform), or as a decoupled Frontend (Vercel) + Backend (Render / Railway).
 
-### Unified Node.js Deployment Steps (e.g. Render / Railway / Ubuntu Server)
-1. **Build Step:**
+### Option A: Unified Full-Stack Node.js Deployment (Render / Railway - Recommended)
+Since this project uses an Express backend with an atomic SQLite database (`better-sqlite3` in WAL mode for zero-overbooking transactional row locking), deploying the unified server on a stateful Node.js host (like Render or Railway) runs both the API and client from one place:
+1. **Build Command:**
    ```bash
    npm install && npm run build
    ```
@@ -109,18 +110,31 @@ The application is architected for single-instance or containerized cloud deploy
    ```bash
    npm start
    ```
-   *(The Express server serves the compiled static React app and all API routes from `server/src/server.js` on `PORT`.)*
+   *(The Express server in `server/src/server.js` serves both `/api/*` endpoints and the compiled React SPA on `PORT`.)*
+
+### Option B: Decoupled Deployment (Vercel Frontend + Render/Railway Backend)
+If you host the React frontend on **Vercel**:
+1. **Frontend (Vercel):**
+   - **Root Directory:** `client` (or root with Build command: `npm run build --prefix client` and Output directory: `client/dist`).
+   - **Environment Variable:** Set `VITE_API_URL` to your deployed backend URL (e.g., `https://your-backend.onrender.com/api`).
+2. **Backend (Render / Railway):**
+   - Connect your GitHub repo to **Render** (as a Web Service) or **Railway**.
+   - **Root Directory:** `server` (or root with Start command: `node server/src/server.js`).
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - Add environment variables (`JWT_SECRET`, `NODE_ENV=production`).
 
 ### Environment Variables Required (Names Only)
 As per the assignment security rules, variable names only are listed below (never values):
 
-| Variable Name | Purpose | Required / Optional |
+| Variable Name | Purpose | Target Service |
 | :--- | :--- | :--- |
-| `PORT` | HTTP port on which the server listens | Optional (defaults to 5000) |
-| `NODE_ENV` | Environment mode (`development` or `production`) | Optional |
-| `JWT_SECRET` | Secret key for signing role-based session JWT tokens | Required in production |
-| `DB_PATH` | File path for SQLite persistent database storage | Optional (defaults to `./resort.db`) |
-| `GEMINI_API_KEY` | Optional Google Gemini LLM API key | Optional (Deterministic rule-based NLP engine runs locally with 100% offline fallback) |
+| `PORT` | HTTP port on which the server listens | Backend (Render/Railway) |
+| `NODE_ENV` | Environment mode (`development` or `production`) | Backend |
+| `JWT_SECRET` | Secret key for signing role-based session JWT tokens | Backend |
+| `DB_PATH` | File path for SQLite persistent database storage | Backend |
+| `GEMINI_API_KEY` | Optional Google Gemini LLM API key | Backend |
+| `VITE_API_URL` | Full URL to the deployed backend API (e.g. `https://your-api.onrender.com/api`) | Frontend (Vercel) |
 
 ---
 
