@@ -1,0 +1,16 @@
+# The Serai Ridge Estate & Resort
+
+> The Serai Ridge Estate & Resort is a premier 76-key coffee sanctuary in Chikkamagaluru, Karnataka (64 suites and 12 private heated plunge pool villas), featuring a direct-booking engine, zero-overbooking transactional allotment controls, and AI-powered enquiry routing.
+
+## Estate Direct Booking & Accommodations
+- [Direct Room Booking & Rates](https://estate-haven-pink.vercel.app/): Direct reservation engine offering guaranteed lowest tariffs, real-time allotment availability, and 10% direct savings using promo code DIRECT10.
+- [Suites & Private Villas Catalog](https://estate-haven-pink.vercel.app/): Detailed floor plans, guest capacities, and photography for Plantation Classic Rooms, Estate Valley Suites, Heritage Planter's Cottages, and Private Plunge Pool Villas.
+
+## Events, Weddings & Corporate Offsites
+- [Bhadra Lawns Destination Weddings](https://estate-haven-pink.vercel.app/): 500-guest outdoor lawn venue, silver oak canopies, Malnad culinary banquets, and 76-key full estate buyout packages.
+- [Corporate Leadership Retreats](https://estate-haven-pink.vercel.app/): High-speed fiber conference pavilion (80 pax), coffee trail networking, and executive team offsites.
+
+## Real-Time API Endpoints & Capabilities
+- [API Health Check](https://estate-haven.onrender.com/api/health): Server connectivity, database integrity status, and resort operational metadata.
+- [Rooms & Allotment API](https://estate-haven.onrender.com/api/rooms): Real-time availability by date range, statutory Indian GST calculations (12% <= ₹7,500; 18% > ₹7,500), and rate plan pricing.
+- [AI Enquiry Router API](https://estate-haven.onrender.com/api/enquiries): Automated multi-channel enquiry ingestion, NLP intent classification (wedding, offsite, room booking, complaint), entity extraction, and rate-grounded reply drafts.

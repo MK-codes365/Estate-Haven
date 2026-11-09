@@ -1,0 +1,52 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "The Serai Ridge Estate & Resort",
+    "documentationUrl": "https://estate-haven-pink.vercel.app"
+  },
+  "entries": [
+    {
+      "identifier": "urn:ai:estate-haven:api:rooms",
+      "displayName": "Rooms & Villas Availability and Rate Engine",
+      "type": "application/json",
+      "url": "https://estate-haven.onrender.com/api/rooms",
+      "description": "Real-time room inventory, 76-key allotment status, GST breakdown, and dynamic rate plans.",
+      "version": "1.0.0",
+      "capabilities": [
+        "resources",
+        "tools"
+      ],
+      "representativeQueries": [
+        "check room availability and pricing",
+        "view private plunge pool villa tariff"
+      ],
+      "tags": [
+        "hospitality",
+        "booking",
+        "rooms",
+        "rates"
+      ]
+    },
+    {
+      "identifier": "urn:ai:estate-haven:api:enquiries",
+      "displayName": "AI Enquiry Classification & Reply Routing",
+      "type": "application/json",
+      "url": "https://estate-haven.onrender.com/api/enquiries",
+      "description": "Multi-channel event and stay enquiry routing with NLP intent classification (wedding, offsite, room, complaint).",
+      "version": "1.0.0",
+      "capabilities": [
+        "tools"
+      ],
+      "representativeQueries": [
+        "submit wedding enquiry for Bhadra lawns",
+        "request corporate offsite package"
+      ],
+      "tags": [
+        "enquiries",
+        "ai-router",
+        "weddings",
+        "events"
+      ]
+    }
+  ]
+}
