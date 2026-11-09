@@ -47,18 +47,20 @@ export default function RoleSwitcher() {
         </span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-        <span style={{ color: '#C5D5CB', fontSize: '0.75rem', marginRight: '0.3rem' }}>Switch Role:</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <span style={{ color: '#C5D5CB', fontSize: '0.75rem', marginRight: '0.2rem' }}>Switch Role:</span>
         <button
           onClick={() => demoLogin('guest')}
           style={{
-            padding: '0.2rem 0.6rem',
-            borderRadius: '4px',
-            fontSize: '0.75rem',
+            padding: '0.4rem 0.75rem',
+            minHeight: '38px',
+            borderRadius: '6px',
+            fontSize: '0.78rem',
             fontWeight: 600,
-            backgroundColor: role === 'guest' ? '#FFFFFF' : 'rgba(255,255,255,0.12)',
+            backgroundColor: role === 'guest' ? '#FFFFFF' : 'rgba(255,255,255,0.14)',
             color: role === 'guest' ? '#16281E' : '#E0E8E3',
-            transition: 'all 0.15s ease'
+            transition: 'all 0.15s ease',
+            cursor: 'pointer'
           }}
         >
           Guest View
@@ -66,13 +68,15 @@ export default function RoleSwitcher() {
         <button
           onClick={() => demoLogin('reservations_staff')}
           style={{
-            padding: '0.2rem 0.6rem',
-            borderRadius: '4px',
-            fontSize: '0.75rem',
+            padding: '0.4rem 0.75rem',
+            minHeight: '38px',
+            borderRadius: '6px',
+            fontSize: '0.78rem',
             fontWeight: 600,
-            backgroundColor: role === 'reservations_staff' ? '#2980B9' : 'rgba(255,255,255,0.12)',
+            backgroundColor: role === 'reservations_staff' ? '#2980B9' : 'rgba(255,255,255,0.14)',
             color: '#FFFFFF',
-            transition: 'all 0.15s ease'
+            transition: 'all 0.15s ease',
+            cursor: 'pointer'
           }}
         >
           Staff Inbox
@@ -80,13 +84,15 @@ export default function RoleSwitcher() {
         <button
           onClick={() => demoLogin('general_manager')}
           style={{
-            padding: '0.2rem 0.6rem',
-            borderRadius: '4px',
-            fontSize: '0.75rem',
+            padding: '0.4rem 0.75rem',
+            minHeight: '38px',
+            borderRadius: '6px',
+            fontSize: '0.78rem',
             fontWeight: 600,
-            backgroundColor: role === 'general_manager' ? '#C0392B' : 'rgba(255,255,255,0.12)',
+            backgroundColor: role === 'general_manager' ? '#C0392B' : 'rgba(255,255,255,0.14)',
             color: '#FFFFFF',
-            transition: 'all 0.15s ease'
+            transition: 'all 0.15s ease',
+            cursor: 'pointer'
           }}
         >
           GM / Admin

@@ -145,7 +145,7 @@ export default function Navbar({ activePage, setActivePage }) {
           <button
             onClick={() => handleNavClick('rooms')}
             className="btn-gold"
-            style={{ fontSize: '0.85rem', padding: '0.6rem 1.2rem' }}
+            style={{ fontSize: '0.85rem', padding: '0.65rem 1.25rem', minHeight: '44px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
           >
             <span>Book Direct (10% Off)</span>
             <ChevronRight size={14} />
@@ -154,9 +154,14 @@ export default function Navbar({ activePage, setActivePage }) {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             style={{
-              padding: '0.4rem',
+              padding: '0.6rem',
+              minWidth: '44px',
+              minHeight: '44px',
+              alignItems: 'center',
+              justifyContent: 'center',
               color: 'var(--primary-deep)',
-              display: 'flex'
+              display: 'flex',
+              cursor: 'pointer'
             }}
             className="mobile-toggle"
             aria-label="Toggle Navigation Menu"

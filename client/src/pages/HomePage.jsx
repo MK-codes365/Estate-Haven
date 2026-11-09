@@ -67,7 +67,6 @@ export default function HomePage({ setActivePage }) {
           muted={isMuted}
           playsInline
           preload="metadata"
-          poster="/poster.webp"
           style={{
             position: 'absolute',
             top: 0,
@@ -76,10 +75,12 @@ export default function HomePage({ setActivePage }) {
             height: '100%',
             objectFit: 'cover',
             filter: 'brightness(0.62) contrast(1.08)',
+            backgroundColor: '#0A120E',
             zIndex: 1
           }}
         >
           <source src="/Video 1.mp4" type="video/mp4" />
+          <track kind="captions" src="data:text/vtt,WEBVTT%0A%0A00:00:00.000%20-->%2000:00:14.000%0A(Ambient%20mist%20over%20the%20coffee%20estate)" default />
         </video>
 
         {/* Cinematic dark aesthetic vignette overlay */}
@@ -101,8 +102,8 @@ export default function HomePage({ setActivePage }) {
           aria-label={isMuted ? 'Turn ambient sound on' : 'Mute ambient sound'}
           style={{
             position: 'absolute',
-            top: '2rem',
-            right: '2rem',
+            top: 'clamp(1rem, 3vw, 2rem)',
+            right: 'clamp(1rem, 3vw, 2rem)',
             zIndex: 25,
             display: 'inline-flex',
             alignItems: 'center',
@@ -111,7 +112,8 @@ export default function HomePage({ setActivePage }) {
             backdropFilter: 'blur(12px)',
             border: '1px solid rgba(255, 255, 255, 0.22)',
             borderRadius: '9999px',
-            padding: '0.45rem 1rem',
+            padding: '0.5rem 1.1rem',
+            minHeight: '44px',
             color: '#FAF8F5',
             fontSize: '0.74rem',
             fontWeight: 700,
@@ -139,9 +141,9 @@ export default function HomePage({ setActivePage }) {
         <div style={{
           position: 'relative',
           zIndex: 10,
-          padding: '6rem 3rem 0 3rem',
+          padding: 'clamp(4rem, 8vw, 6rem) clamp(1.2rem, 4vw, 3rem) 0 clamp(1.2rem, 4vw, 3rem)',
           maxWidth: '1280px',
-          margin: 'auto 0 3rem 0'
+          margin: 'auto 0 clamp(1.5rem, 4vw, 3rem) 0'
         }}>
           {/* Pill Badge matching design */}
           <div style={{
@@ -154,18 +156,21 @@ export default function HomePage({ setActivePage }) {
             borderRadius: '9999px',
             padding: '0.4rem 1.15rem',
             marginBottom: '1.2rem',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.25)'
+            boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+            maxWidth: '100%',
+            flexWrap: 'wrap'
           }}>
             <span style={{
               width: '8px',
               height: '8px',
               borderRadius: '50%',
               backgroundColor: '#C59B27',
-              display: 'inline-block'
+              display: 'inline-block',
+              flexShrink: 0
             }} />
             <span style={{
-              fontSize: '0.76rem',
-              letterSpacing: '2px',
+              fontSize: 'clamp(0.68rem, 1.8vw, 0.76rem)',
+              letterSpacing: '1.5px',
               textTransform: 'uppercase',
               color: '#D8E8DF',
               fontWeight: 700
@@ -176,10 +181,10 @@ export default function HomePage({ setActivePage }) {
 
           <h1 style={{
             fontFamily: 'var(--font-serif)',
-            fontSize: 'clamp(2.8rem, 7.5vw, 6.4rem)',
+            fontSize: 'clamp(2.4rem, 7vw, 6.4rem)',
             color: '#FFFFFF',
             fontWeight: 500,
-            lineHeight: 1.02,
+            lineHeight: 1.05,
             letterSpacing: '-1.5px',
             marginBottom: '1.4rem',
             textTransform: 'none'
@@ -189,12 +194,12 @@ export default function HomePage({ setActivePage }) {
           </h1>
 
           <p style={{
-            fontSize: 'clamp(1rem, 1.6vw, 1.35rem)',
+            fontSize: 'clamp(0.95rem, 1.6vw, 1.35rem)',
             color: '#E0EDE5',
             maxWidth: '680px',
             lineHeight: 1.6,
             fontWeight: 300,
-            marginBottom: '2.5rem'
+            marginBottom: '2rem'
           }}>
             100 acres of shade-grown Arabica estate in the Western Ghats. Direct booking privilege with zero OTA commissions and guaranteed lowest tariff.
           </p>
@@ -204,16 +209,16 @@ export default function HomePage({ setActivePage }) {
         <div style={{
           position: 'relative',
           zIndex: 10,
-          backgroundColor: 'rgba(20, 36, 28, 0.92)',
+          backgroundColor: 'rgba(20, 36, 28, 0.94)',
           backdropFilter: 'blur(20px)',
           borderTop: '1px solid rgba(255, 255, 255, 0.15)',
-          padding: '1.4rem 3rem'
+          padding: 'clamp(1rem, 2.5vw, 1.4rem) clamp(1rem, 4vw, 3rem)'
         }}>
           <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
             <form onSubmit={handleSearch} style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
-              gap: '1.2rem',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '1rem',
               alignItems: 'flex-end'
             }}>
               <div>
@@ -227,7 +232,8 @@ export default function HomePage({ setActivePage }) {
                   onChange={(e) => setCheckIn(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '0.65rem 0.8rem',
+                    padding: '0.75rem 0.8rem',
+                    minHeight: '46px',
                     backgroundColor: 'rgba(255, 255, 255, 0.08)',
                     border: '1px solid rgba(255, 255, 255, 0.25)',
                     borderRadius: '6px',
@@ -249,7 +255,8 @@ export default function HomePage({ setActivePage }) {
                   onChange={(e) => setCheckOut(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '0.65rem 0.8rem',
+                    padding: '0.75rem 0.8rem',
+                    minHeight: '46px',
                     backgroundColor: 'rgba(255, 255, 255, 0.08)',
                     border: '1px solid rgba(255, 255, 255, 0.25)',
                     borderRadius: '6px',
@@ -272,7 +279,8 @@ export default function HomePage({ setActivePage }) {
                     onChange={(e) => setAdults(Number(e.target.value))}
                     style={{
                       flex: 1,
-                      padding: '0.65rem 0.6rem',
+                      padding: '0.75rem 0.6rem',
+                      minHeight: '46px',
                       backgroundColor: 'rgba(255, 255, 255, 0.08)',
                       border: '1px solid rgba(255, 255, 255, 0.25)',
                       borderRadius: '6px',
@@ -292,7 +300,8 @@ export default function HomePage({ setActivePage }) {
                     onChange={(e) => setChildrenCount(Number(e.target.value))}
                     style={{
                       flex: 1,
-                      padding: '0.65rem 0.6rem',
+                      padding: '0.75rem 0.6rem',
+                      minHeight: '46px',
                       backgroundColor: 'rgba(255, 255, 255, 0.08)',
                       border: '1px solid rgba(255, 255, 255, 0.25)',
                       borderRadius: '6px',
@@ -315,7 +324,7 @@ export default function HomePage({ setActivePage }) {
                   style={{
                     width: '100%',
                     padding: '0.75rem 1.4rem',
-                    height: '46px',
+                    minHeight: '46px',
                     fontSize: '0.88rem',
                     letterSpacing: '0.5px',
                     boxShadow: '0 6px 20px rgba(197, 155, 39, 0.35)'
@@ -460,15 +469,15 @@ export default function HomePage({ setActivePage }) {
               borderRadius: '16px',
               border: '1px solid rgba(255,255,255,0.12)',
               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6)',
-              height: '480px'
+              height: 'clamp(280px, 45vw, 480px)'
             }}>
               <img
                 src="/Photo 1.webp"
                 alt="Serai Ridge Estate Grounds & Architecture"
                 loading="lazy"
                 decoding="async"
-                width="1600"
-                height="1067"
+                width="800"
+                height="533"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
@@ -476,10 +485,10 @@ export default function HomePage({ setActivePage }) {
             {/* Floating Overlapping Accent Image: Photo 2 */}
             <div className="editorial-img-wrap" style={{
               position: 'absolute',
-              bottom: '-12%',
-              left: '-10%',
-              width: '55%',
-              height: '240px',
+              bottom: '-8%',
+              left: '-6%',
+              width: 'clamp(150px, 50%, 260px)',
+              height: 'clamp(140px, 26vw, 240px)',
               borderRadius: '12px',
               border: '4px solid #0A120E',
               boxShadow: '0 20px 40px rgba(0,0,0,0.7)',
@@ -490,8 +499,8 @@ export default function HomePage({ setActivePage }) {
                 alt="Estate Sunset Atmosphere"
                 loading="lazy"
                 decoding="async"
-                width="800"
-                height="533"
+                width="600"
+                height="400"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
@@ -504,16 +513,16 @@ export default function HomePage({ setActivePage }) {
           ========================================================================= */}
       <section style={{
         backgroundColor: '#0F1A14',
-        padding: '6rem 0',
+        padding: 'clamp(3.5rem, 6vw, 6rem) 0',
         borderTop: '1px solid rgba(255,255,255,0.06)',
         borderBottom: '1px solid rgba(255,255,255,0.06)'
       }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-end',
-            marginBottom: '3rem',
+            marginBottom: '2.5rem',
             flexWrap: 'wrap',
             gap: '1rem'
           }}>
@@ -534,8 +543,8 @@ export default function HomePage({ setActivePage }) {
           {/* 3-Card Visual Grid with Photo 3, Photo 4, Photo 5 */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '2rem'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '1.5rem'
           }}>
             {/* Card 1: Photo 3 */}
             <div style={{
@@ -544,22 +553,22 @@ export default function HomePage({ setActivePage }) {
               overflow: 'hidden',
               border: '1px solid rgba(255,255,255,0.08)'
             }}>
-              <div className="editorial-img-wrap" style={{ height: '320px' }}>
+              <div className="editorial-img-wrap" style={{ height: 'clamp(220px, 30vw, 320px)' }}>
                 <img
                   src="/Photo 3.webp"
                   alt="Plunge Pool Villa View"
                   loading="lazy"
                   decoding="async"
-                  width="1200"
-                  height="800"
+                  width="640"
+                  height="427"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
-              <div style={{ padding: '1.6rem' }}>
+              <div style={{ padding: '1.4rem' }}>
                 <span style={{ fontSize: '0.72rem', letterSpacing: '1px', textTransform: 'uppercase', color: '#C59B27', fontWeight: 600 }}>
                   Signature Keys &bull; 12 Villas
                 </span>
-                <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
+                <h3 style={{ fontSize: '1.3rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
                   Private Heated Plunge Pool Villas
                 </h3>
                 <p style={{ fontSize: '0.9rem', color: '#D8E8DF', lineHeight: 1.5, margin: 0 }}>
@@ -575,22 +584,22 @@ export default function HomePage({ setActivePage }) {
               overflow: 'hidden',
               border: '1px solid rgba(255,255,255,0.08)'
             }}>
-              <div className="editorial-img-wrap" style={{ height: '320px' }}>
+              <div className="editorial-img-wrap" style={{ height: 'clamp(220px, 30vw, 320px)' }}>
                 <img
                   src="/Photo 4.webp"
                   alt="Estate Valley Suites"
                   loading="lazy"
                   decoding="async"
-                  width="1200"
-                  height="800"
+                  width="640"
+                  height="427"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
-              <div style={{ padding: '1.6rem' }}>
+              <div style={{ padding: '1.4rem' }}>
                 <span style={{ fontSize: '0.72rem', letterSpacing: '1px', textTransform: 'uppercase', color: '#C59B27', fontWeight: 600 }}>
                   Estate Suites &bull; 24 Keys
                 </span>
-                <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
+                <h3 style={{ fontSize: '1.3rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
                   Estate Valley Suites
                 </h3>
                 <p style={{ fontSize: '0.9rem', color: '#D8E8DF', lineHeight: 1.5, margin: 0 }}>
@@ -606,22 +615,22 @@ export default function HomePage({ setActivePage }) {
               overflow: 'hidden',
               border: '1px solid rgba(255,255,255,0.08)'
             }}>
-              <div className="editorial-img-wrap" style={{ height: '320px' }}>
+              <div className="editorial-img-wrap" style={{ height: 'clamp(220px, 30vw, 320px)' }}>
                 <img
                   src="/Photo 5.webp"
                   alt="Planter's Cottage & Lawns"
                   loading="lazy"
                   decoding="async"
-                  width="1200"
-                  height="800"
+                  width="640"
+                  height="427"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
-              <div style={{ padding: '1.6rem' }}>
+              <div style={{ padding: '1.4rem' }}>
                 <span style={{ fontSize: '0.72rem', letterSpacing: '1px', textTransform: 'uppercase', color: '#C59B27', fontWeight: 600 }}>
                   Heritage Living &bull; 28 Keys
                 </span>
-                <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
+                <h3 style={{ fontSize: '1.3rem', color: '#FFFFFF', marginTop: '0.4rem', marginBottom: '0.6rem' }}>
                   Plantation Classic & Bhadra Lawns
                 </h3>
                 <p style={{ fontSize: '0.9rem', color: '#D8E8DF', lineHeight: 1.5, margin: 0 }}>

@@ -14,3 +14,4 @@
 - [API Health Check](https://estate-haven.onrender.com/api/health): Server connectivity, database integrity status, and resort operational metadata.
 - [Rooms & Allotment API](https://estate-haven.onrender.com/api/rooms): Real-time availability by date range, statutory Indian GST calculations (12% <= ₹7,500; 18% > ₹7,500), and rate plan pricing.
 - [AI Enquiry Router API](https://estate-haven.onrender.com/api/enquiries): Automated multi-channel enquiry ingestion, NLP intent classification (wedding, offsite, room booking, complaint), entity extraction, and rate-grounded reply drafts.
+

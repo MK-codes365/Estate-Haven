@@ -6,7 +6,7 @@
   },
   "entries": [
     {
-      "identifier": "urn:ai:estate-haven:api:rooms",
+      "identifier": "urn:air:estate-haven:rooms:booking-engine",
       "displayName": "Rooms & Villas Availability and Rate Engine",
       "type": "application/json",
       "url": "https://estate-haven.onrender.com/api/rooms",
@@ -28,7 +28,7 @@
       ]
     },
     {
-      "identifier": "urn:ai:estate-haven:api:enquiries",
+      "identifier": "urn:air:estate-haven:enquiries:ai-router",
       "displayName": "AI Enquiry Classification & Reply Routing",
       "type": "application/json",
       "url": "https://estate-haven.onrender.com/api/enquiries",
