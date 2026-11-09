@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, Compass, Calendar, Inbox, BarChart3, ShieldCheck, HeartHandshake, Briefcase, ChevronRight } from 'lucide-react';
+import { Menu, X, Calendar, Inbox, BarChart3, ChevronRight } from 'lucide-react';
 
 export default function Navbar({ activePage, setActivePage }) {
-  const { isStaff, isGM, role } = useAuth();
+  const { isStaff } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [

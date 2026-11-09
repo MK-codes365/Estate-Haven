@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { api } from '../services/api';
-import { HeartHandshake, Sparkles, CheckCircle2, Calendar, Users, Send, ArrowRight } from 'lucide-react';
+import { HeartHandshake, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export default function WeddingEnquiryPage({ setActivePage }) {
   const [formData, setFormData] = useState({

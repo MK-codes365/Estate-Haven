@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Printer, Download, MapPin, Calendar, Users, Coffee, ShieldCheck, ArrowRight } from 'lucide-react';
+import { CheckCircle, Printer, ShieldCheck, ArrowRight } from 'lucide-react';
 
 export default function ConfirmationPage({ confirmedBooking, setActivePage }) {
   if (!confirmedBooking) {

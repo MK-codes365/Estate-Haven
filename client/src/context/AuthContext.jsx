@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { api } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -21,7 +21,6 @@ export function AuthProvider({ children }) {
           setUser(null);
         }
       } else {
-        // Default to guest mode
         setUser({ role: 'guest', fullName: 'Guest Visitor' });
       }
       setLoading(false);
@@ -29,15 +28,15 @@ export function AuthProvider({ children }) {
     initAuth();
   }, [token]);
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     const data = await api.login(email, password);
     localStorage.setItem('coffeeridge_token', data.token);
     setToken(data.token);
     setUser(data.user);
     return data.user;
-  };
+  }, []);
 
-  const demoLogin = async (targetRole) => {
+  const demoLogin = useCallback(async (targetRole) => {
     if (targetRole === 'guest') {
       localStorage.removeItem('coffeeridge_token');
       setToken(null);
@@ -49,26 +48,28 @@ export function AuthProvider({ children }) {
     setToken(data.token);
     setUser(data.user);
     return data.user;
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('coffeeridge_token');
     setToken(null);
     setUser({ role: 'guest', fullName: 'Guest Visitor' });
-  };
+  }, []);
+
+  const authValue = useMemo(() => ({
+    user,
+    token,
+    loading,
+    role: user ? user.role : 'guest',
+    isStaff: Boolean(user && (user.role === 'reservations_staff' || user.role === 'general_manager')),
+    isGM: Boolean(user && user.role === 'general_manager'),
+    login,
+    demoLogin,
+    logout
+  }), [user, token, loading, login, demoLogin, logout]);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      token,
-      loading,
-      role: user ? user.role : 'guest',
-      isStaff: user && (user.role === 'reservations_staff' || user.role === 'general_manager'),
-      isGM: user && user.role === 'general_manager',
-      login,
-      demoLogin,
-      logout
-    }}>
+    <AuthContext.Provider value={authValue}>
       {children}
     </AuthContext.Provider>
   );

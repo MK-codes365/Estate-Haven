@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useBooking } from '../context/BookingContext';
 import { api } from '../services/api';
-import { ShieldCheck, CreditCard, Lock, Sparkles, AlertCircle, ArrowLeft, CheckCircle2, ChevronRight, Info } from 'lucide-react';
+import { CreditCard, Lock, AlertCircle, ArrowLeft, CheckCircle2, ChevronRight, Info } from 'lucide-react';
 
 export default function BookingPage({ setActivePage, setConfirmedBooking }) {
   const {

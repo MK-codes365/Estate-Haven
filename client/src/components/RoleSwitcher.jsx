@@ -1,9 +1,9 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, User, Sparkles, LogOut } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export default function RoleSwitcher() {
-  const { user, role, demoLogin, logout } = useAuth();
+  const { user, role, demoLogin } = useAuth();
 
   return (
     <div style={{

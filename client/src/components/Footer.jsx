@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, MapPin, Phone, Mail, Award } from 'lucide-react';
+import { ShieldCheck, MapPin, Phone, Mail } from 'lucide-react';
 
 export default function Footer({ setActivePage }) {
   return (

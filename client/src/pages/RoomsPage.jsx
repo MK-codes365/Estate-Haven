@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { useBooking } from '../context/BookingContext';
-import { Calendar, Users, Check, Sparkles, AlertCircle, ShieldCheck, ChevronRight, Info } from 'lucide-react';
+import { Calendar, Users, Check, AlertCircle, ShieldCheck, ChevronRight } from 'lucide-react';
 
 export default function RoomsPage({ setActivePage }) {
   const {
