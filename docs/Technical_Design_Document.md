@@ -4,8 +4,9 @@
 **Client:** Company A, Chikkamagaluru, Karnataka  
 **Property:** Luxury Coffee-Estate Resort (64 Rooms & 12 Villas = 76 Keys)  
 **Author / Candidate:** Software Engineering Intern Candidate  
-**GitHub Repository:** `https://github.com/mukutkumar/resort-booking`  
-**Live Application URL:** `https://resort-booking-direct.onrender.com` *(Self-hosted deployment link)*  
+**GitHub Repository:** `https://github.com/MK-codes365/Estate-Haven`  
+**Live Frontend (Vercel):** `https://estate-haven-pink.vercel.app`  
+**Live Backend API (Render):** `https://estate-haven.onrender.com` *(Health check: `https://estate-haven.onrender.com/api/health`)*  
 **Date of Submission:** November 2026  
 
 ---

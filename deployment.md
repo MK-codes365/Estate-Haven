@@ -3,6 +3,13 @@
 ## Project: The Serai Ridge Estate & Resort (Chikkamagaluru, Karnataka)
 **Problem Statement:** Hill resort's direct-booking website with AI enquiry routing & zero-overbooking allotment control (76 Keys: 64 Suites & 12 Villas).
 
+### Live Deployment Links
+- **GitHub Repository:** [https://github.com/MK-codes365/Estate-Haven](https://github.com/MK-codes365/Estate-Haven)
+- **Live Frontend (Vercel):** [https://estate-haven-pink.vercel.app](https://estate-haven-pink.vercel.app)
+- **Live Backend API (Render):** [https://estate-haven.onrender.com](https://estate-haven.onrender.com)
+  - **API Health Check:** [https://estate-haven.onrender.com/api/health](https://estate-haven.onrender.com/api/health)
+  - **Live Rooms Catalog:** [https://estate-haven.onrender.com/api/rooms](https://estate-haven.onrender.com/api/rooms)
+
 ---
 
 ## 1. Quick Start / How to Run Locally (Step-by-Step)
