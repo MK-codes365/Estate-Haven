@@ -7,7 +7,7 @@ function generateEnquiryCode() {
   return `ENQ-${num}`;
 }
 
-function createEnquiry(req, res) {
+async function createEnquiry(req, res) {
   try {
     const {
       channel = 'web',
@@ -29,8 +29,8 @@ function createEnquiry(req, res) {
       fullMessage = `[Structured ${eventType} Enquiry] ${preferredDates ? 'Dates: ' + preferredDates + '. ' : ''}${guestCount ? 'Guests: ' + guestCount + '. ' : ''}${fullMessage}`;
     }
 
-    // Run AI Router & Entity Extractor
-    const analysis = aiRouterService.analyzeEnquiry(fullMessage, channel, guestName);
+    // Run AI Router (Uses Google Gemini LLM if GEMINI_API_KEY is present, or instant local NLP engine)
+    const analysis = await aiRouterService.analyzeEnquiryAsync(fullMessage, channel, guestName);
 
     // If explicit form sent wedding/corporate, ensure category is respected
     if (eventType === 'Wedding' && analysis.category !== 'complaint') {

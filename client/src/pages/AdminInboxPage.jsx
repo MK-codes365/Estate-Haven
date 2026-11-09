@@ -524,7 +524,7 @@ export default function AdminInboxPage() {
 
             {/* AI Draft Review & Edit Area */}
             <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <span style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -537,8 +537,15 @@ export default function AdminInboxPage() {
                   <Sparkles size={14} color="var(--gold-warm)" />
                   AI Generated Draft Reply (Staff Review Required)
                 </span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                  Zero auto-send &bull; You may edit before sending
+                <span style={{
+                  fontSize: '0.72rem',
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '4px',
+                  backgroundColor: 'var(--primary-subtle)',
+                  color: 'var(--primary-deep)',
+                  fontWeight: 600
+                }}>
+                  Live AI Engine Active &bull; Zero Auto-Send Guardrail
                 </span>
               </div>
 

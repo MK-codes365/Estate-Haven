@@ -143,6 +143,14 @@ test('AI Enquiry Router - NLP Classification, Entity Extraction & Rate Grounding
     assert.ok(res.confidence < 0.70);
     assert.equal(res.assignedRole, 'Unsorted Review Lane');
   });
+
+  await t.test('Multi-Engine Async Router: Executes dual engine with instant fallback', async () => {
+    const message = 'Is a villa free for this weekend?';
+    const res = await aiRouterService.analyzeEnquiryAsync(message, 'web', 'Test');
+    assert.equal(res.category, 'room_booking');
+    assert.ok(res.draftReply.includes('22,000'));
+    assert.ok(res.engine.includes('NLP') || res.engine.includes('Gemini'));
+  });
 });
 
 test('Export Service - PMS CSV Daily Export', async (t) => {
