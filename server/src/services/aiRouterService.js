@@ -296,7 +296,7 @@ Return a strict JSON object with these keys:
   "draftReply": "A polite, grounded reply. IMPORTANT: Any room rates quoted MUST come strictly from the live rate table above, never hallucinated! In-house complaints must convey immediate GM apology and engineer inspection."
 }`;
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -315,8 +315,9 @@ Return a strict JSON object with these keys:
   const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!rawText) throw new Error('Empty response from Gemini API');
 
-  const parsed = JSON.parse(rawText);
-  parsed.engine = 'Google Gemini 1.5 Flash (Generative LLM)';
+  const cleanJson = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+  const parsed = JSON.parse(cleanJson);
+  parsed.engine = 'Google Gemini (Generative LLM)';
   return {
     category: parsed.category || 'unsorted',
     confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.85,
